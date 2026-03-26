@@ -46,7 +46,8 @@ export default function Navbar() {
                 color: "#fff",
                 borderRadius: "50%",
                 padding: "4px 8px",
-                fontSize: "12px"
+                fontSize: "12px",
+                fontWeight: "bold"
               }}>
                 {totalItems}
               </span>
