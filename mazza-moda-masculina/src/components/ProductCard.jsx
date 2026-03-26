@@ -10,6 +10,20 @@ export default function ProductCard({ produto }) {
         border: "1px solid var(--border)"
       }}
     >
+      <img
+        src={produto.imagem 
+              ? `http://localhost:5000/uploads/${produto.imagem}`
+              : "https://picsum.photos/300"}
+        alt=""
+        style={{ width: "100%", borderRadius: "10px" }}
+      />
+
+      <h3>{produto.nome}</h3>
+
+      <p style={{ color: "var(--primary)", fontWeight: "bold" }}>
+        R$ {produto.preco}
+      </p>
+
       <button style={{
         marginTop: "10px",
         padding: "10px",
@@ -22,20 +36,6 @@ export default function ProductCard({ produto }) {
       }}>
         Comprar
       </button>
-      
-      <img
-        src={produto.imagem 
-              ? `http://localhost:5000/uploads/${produto.imagem}`
-              : "https://via.placeholder.com/300"}
-        alt=""
-        style={{ width: "100%", borderRadius: "10px" }}
-      />
-
-      <h3>{produto.nome}</h3>
-
-      <p style={{ color: "var(--primary)", fontWeight: "bold" }}>
-        R$ {produto.preco}
-      </p>
     </div>
   );
 }

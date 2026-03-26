@@ -1,7 +1,9 @@
 import useTheme from "../hooks/useTheme";
+import { useNavigate } from "react-router-dom";
 
 export default function Navbar() {
   const { theme, setTheme } = useTheme();
+  const navigate = useNavigate();
 
   return (
     <nav style={{
@@ -34,10 +36,12 @@ export default function Navbar() {
         🌙
       </button>
 
-      <button onClick={() => {
-        localStorage.removeItem("user");
-        window.location.href = "/login";
-      }}>
+      <button
+        onClick={() => {
+          localStorage.removeItem("user");
+          navigate("/login");
+        }}
+      >
         Sair
       </button>
     </nav>
