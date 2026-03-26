@@ -1,7 +1,33 @@
 import { useCart } from "../context/CartContext";
 
 export default function CartSidebar({ open, onClose }) {
-  const { cart, removeFromCart, total } = useCart();
+  const { cart, total, clearCart, removeFromCart } = useCart();
+
+  async function finalizarCompra() {
+    try {
+      const response = await fetch("http://localhost:5000/pedidos", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          itens: cart,
+          total
+        })
+      });
+
+      await response.json();
+
+      alert("Pedido realizado com sucesso!");
+
+      clearCart();
+      onClose();
+
+    } catch (error) {
+      console.error(error);
+      alert("Erro ao finalizar compra");
+    }
+  }
 
   return (
     <>
@@ -58,7 +84,7 @@ export default function CartSidebar({ open, onClose }) {
 
         <h3>Total: R$ {total}</h3>
 
-        <button style={{
+        <button onClick={finalizarCompra} style={{
           padding: "12px",
           borderRadius: "8px",
           border: "none",
