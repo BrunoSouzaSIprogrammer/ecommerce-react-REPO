@@ -1,10 +1,14 @@
 import useTheme from "../hooks/useTheme";
 import { useNavigate } from "react-router-dom";
 import { Link } from "react-router-dom";
+import { useCart } from "../context/CartContext";
 
 export default function Navbar() {
   const { theme, setTheme } = useTheme();
   const navigate = useNavigate();
+  const { cart } = useCart();
+
+  const totalItems = cart.reduce((acc, item) => acc + item.quantity, 0);
 
   return (
     <nav style={{
@@ -30,8 +34,24 @@ export default function Navbar() {
       />
 
         <div>
-          <Link to="/cart">🛒Carrinho</Link>
-         👤
+          <Link to="/cart" style={{ position: "relative" }}>
+            🛒
+
+            {totalItems > 0 && (
+              <span style={{
+                position: "absolute",
+                top: "-8px",
+                right: "-10px",
+                background: "red",
+                color: "#fff",
+                borderRadius: "50%",
+                padding: "4px 8px",
+                fontSize: "12px"
+              }}>
+                {totalItems}
+              </span>
+            )}
+          </Link>
         </div>
 
       <button onClick={() => setTheme(theme === "dark" ? "light" : "dark")}>

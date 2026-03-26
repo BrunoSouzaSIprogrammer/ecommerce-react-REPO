@@ -1,24 +1,29 @@
 import { useCart } from "../context/CartContext";
+import { useState } from "react";
 
 export default function ProductCard({ produto }) {
   const { addToCart } = useCart();
+  const [added, setAdded] = useState(false);
+
+  function handleAdd() {
+    addToCart(produto);
+    setAdded(true);
+
+    setTimeout(() => setAdded(false), 1500);
+  };
 
   return (
-    <div
-      style={{
-        background: "var(--card)",
-        borderRadius: "16px",
-        padding: "15px",
-        transition: "0.3s",
-        cursor: "pointer",
-        border: "1px solid var(--border)"
-      }}
-    >
+    <div style={{
+      background: "var(--card)",
+      borderRadius: "16px",
+      padding: "15px",
+      border: "1px solid var(--border)"
+    }}>
       <img
         src={produto.imagem 
-              ? `http://localhost:5000/uploads/${produto.imagem}`
-              : "https://picsum.photos/300"}
-        alt=""
+          ? `http://localhost:5000/uploads/${produto.imagem}`
+          : "https://picsum.photos/300"}
+        alt={produto.nome}
         style={{ width: "100%", borderRadius: "10px" }}
       />
 
@@ -28,21 +33,21 @@ export default function ProductCard({ produto }) {
         R$ {produto.preco}
       </p>
 
-      <button style={{
-        marginTop: "10px",
-        padding: "10px",
-        border: "none",
-        borderRadius: "8px",
-        background: "var(--primary)",
-        color: "#000",
-        fontWeight: "bold",
-        cursor: "pointer"
-      }}>
-        Comprar
-      </button>
-
-      <button onClick={() => addToCart(produto)}>
-        Adicionar ao carrinho
+      <button
+        onClick={handleAdd}
+        style={{
+          marginTop: "10px",
+          padding: "10px",
+          border: "none",
+          borderRadius: "8px",
+          background: added ? "#4CAF50" : "var(--primary)",
+          color: "#000",
+          fontWeight: "bold",
+          cursor: "pointer",
+          transition: "0.3s"
+        }}
+      >
+        {added ? "✔ Adicionado" : "Comprar"}
       </button>
     </div>
   );
