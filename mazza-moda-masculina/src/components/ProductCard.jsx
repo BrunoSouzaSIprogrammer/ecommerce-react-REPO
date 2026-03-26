@@ -1,23 +1,23 @@
 import { useCart } from "../context/CartContext";
 import { useState } from "react";
 import Toast from "./Toast";
+import { animateToCart } from "../utils/animateToCart";
 
 export default function ProductCard({ produto }) {
   const { addToCart } = useCart();
   const [added, setAdded] = useState(false);
   const [showToast, setShowToast] = useState(false);
 
-  function handleAdd() {
+  function handleAdd(e) {
+    animateToCart(e); // 💥 animação
+
     addToCart(produto);
-    // ativa feedback visual de adicionado
+
     setAdded(true);
-    // volta ao normal depois de 1.5s
     setShowToast(true);
-    setTimeout(() => {
-      setAdded(false);
-      setShowToast(false);
-    }, 1500);
-  };
+
+    setTimeout(() => setAdded(false), 1500);
+  }
 
   return (
     <>

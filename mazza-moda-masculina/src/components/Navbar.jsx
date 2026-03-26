@@ -38,6 +38,7 @@ export default function Navbar() {
 
         {/* 🛒 CARRINHO CORRIGIDO */}
         <div
+          id="cart-icon"
           onClick={() => setOpen(true)}
           style={{ position: "relative", cursor: "pointer" }}
         >
