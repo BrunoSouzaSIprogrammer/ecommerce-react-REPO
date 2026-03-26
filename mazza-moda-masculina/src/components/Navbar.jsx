@@ -33,6 +33,13 @@ export default function Navbar() {
       <button onClick={() => setTheme(theme === "dark" ? "light" : "dark")}>
         🌙
       </button>
+
+      <button onClick={() => {
+        localStorage.removeItem("user");
+        window.location.href = "/login";
+      }}>
+        Sair
+      </button>
     </nav>
   );
 }
