@@ -1,5 +1,6 @@
 import useTheme from "../hooks/useTheme";
 import { useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 
 export default function Navbar() {
   const { theme, setTheme } = useTheme();
@@ -29,7 +30,8 @@ export default function Navbar() {
       />
 
         <div>
-        🛒 👤
+          <Link to="/cart">🛒Carrinho</Link>
+         👤
         </div>
 
       <button onClick={() => setTheme(theme === "dark" ? "light" : "dark")}>

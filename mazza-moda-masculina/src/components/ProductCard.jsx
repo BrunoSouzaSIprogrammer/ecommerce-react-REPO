@@ -1,4 +1,8 @@
+import { useCart } from "../context/CartContext";
+
 export default function ProductCard({ produto }) {
+  const { addToCart } = useCart();
+
   return (
     <div
       style={{
@@ -35,6 +39,10 @@ export default function ProductCard({ produto }) {
         cursor: "pointer"
       }}>
         Comprar
+      </button>
+
+      <button onClick={() => addToCart(produto)}>
+        Adicionar ao carrinho
       </button>
     </div>
   );
