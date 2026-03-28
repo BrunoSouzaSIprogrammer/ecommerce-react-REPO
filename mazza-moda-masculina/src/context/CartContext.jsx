@@ -5,6 +5,16 @@ const CartContext = createContext();
 export function CartProvider({ children }) {
   const [cart, setCart] = useState([]);
 
+  const [toast, setToast] = useState({ show: false, message: "" });
+
+  function showToast(message) {
+    setToast({ show: true, message });
+
+    setTimeout(() => {
+      setToast({ show: false, message: "" });
+    }, 2000);
+  }
+
   // carregar do localStorage
   useEffect(() => {
     const storedCart = localStorage.getItem("cart");
@@ -61,7 +71,9 @@ export function CartProvider({ children }) {
         removeFromCart,
         updateQuantity,
         clearCart,
-        total,
+        toast,
+        showToast,
+        total
       }}
     >
       {children}

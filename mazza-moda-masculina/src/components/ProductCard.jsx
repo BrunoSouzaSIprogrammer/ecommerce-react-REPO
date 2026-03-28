@@ -16,7 +16,8 @@ export default function ProductCard({ produto }) {
     setAdded(true);
     setShowToast(true);
 
-    setTimeout(() => setAdded(false), 1500);
+    setTimeout(() => setAdded(false), 2000);
+    setTimeout(() => setShowToast(false), 2000);
   }
 
   return (
@@ -62,7 +63,6 @@ export default function ProductCard({ produto }) {
       <Toast
         message="Produto adicionado ao carrinho"
         show={showToast}
-        onClose={() => setShowToast(false)}
       />
     </>
   );
