@@ -22,6 +22,7 @@ export default function Login() {
 
     localStorage.setItem("user", JSON.stringify(data));
     navigate("/");
+    JSON.parse(localStorage.getItem("user"))
       }
 
   return (

@@ -12,6 +12,7 @@ export default function ProductCard({ produto }) {
     animateToCart(e); // 💥 animação
 
     addToCart(produto);
+    showToast("Produto adicionado ao carrinho");
 
     setAdded(true);
     setShowToast(true);

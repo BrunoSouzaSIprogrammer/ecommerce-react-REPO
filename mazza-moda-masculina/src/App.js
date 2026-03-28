@@ -7,11 +7,10 @@ import { useCart } from "./context/CartContext";
 import Toast from "./components/Toast";
 
 function App() {
+  const { toast } = useCart();
   const [user, setUser] = useState(
     JSON.parse(localStorage.getItem("user"))
   );
-  const { toast } = useCart();
-
   useEffect(() => {
     const interval = setInterval(() => {
       setUser(JSON.parse(localStorage.getItem("user")));
@@ -20,28 +19,28 @@ function App() {
   }, []);
 
   return (
-    <>
+    <BrowserRouter>
+      <Routes>
+
+        <Route path="/login" element={<Login />} />
+        {/* 👉 se não estiver logado, força login */}
+        <Route
+          path="/"
+          element={user ? <Home /> : <Navigate to="/login" />}
+        />
+
+        <Route
+          path="/admin"
+          element={user ? <Admin /> : <Navigate to="/login" />}
+        />
+        
+      </Routes>
       <Toast
         message={toast.message}
         show={toast.show}
         onClose={() => {}}
       />
-      <BrowserRouter>
-        <Routes>
-          <Route path="/login" element={<Login />} />
-          {/* 👉 se não estiver logado, força login */}
-          <Route
-            path="/"
-            element={user ? <Home /> : <Navigate to="/login" />}
-          />
-
-          <Route
-            path="/admin"
-            element={user ? <Admin /> : <Navigate to="/login" />}
-          />
-        </Routes>
-      </BrowserRouter>
-    </>
+    </BrowserRouter>
   );
 }
 
