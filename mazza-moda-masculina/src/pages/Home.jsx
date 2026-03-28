@@ -11,12 +11,12 @@ export default function Home() {
   useEffect(() => {
     async function fetchData() {
       const data = await getProdutos();
-      setProdutos(data);
+      setProdutos(Array.isArray(data) ? data : []);
     }
     fetchData();
   }, []);
 
-  const produtosFiltrados = produtos.filter(p =>
+  const produtosFiltrados = (produtos || []).filter(p =>
     p.nome.toLowerCase().includes(busca.toLowerCase())
   );
 
