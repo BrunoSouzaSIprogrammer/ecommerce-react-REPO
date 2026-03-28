@@ -5,6 +5,8 @@ export default function CartSidebar({ open, onClose }) {
 
   async function finalizarCompra() {
     try {
+      const user = JSON.parse(localStorage.getItem("user"));
+
       const response = await fetch("http://localhost:5000/pedidos", {
         method: "POST",
         headers: {
@@ -12,16 +14,17 @@ export default function CartSidebar({ open, onClose }) {
         },
         body: JSON.stringify({
           itens: cart,
-          total
+          total,
+          userId: user?.uid || null
         })
       });
 
       await response.json();
 
-      alert("Pedido realizado com sucesso!");
-
       clearCart();
       onClose();
+
+      alert("Pedido realizado com sucesso!");
 
     } catch (error) {
       console.error(error);
