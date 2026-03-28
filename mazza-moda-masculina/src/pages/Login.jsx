@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 
 export default function Login() {
   const [email, setEmail] = useState("");
@@ -13,17 +14,15 @@ export default function Login() {
     });
 
     const data = await res.json();
-    console.log(data);
 
-    if (!data || !data.email) {
-      alert("Login inválido");
+    if (!res.ok) {
+      alert(data.error || "Login inválido");
       return;
     }
 
     localStorage.setItem("user", JSON.stringify(data));
     navigate("/");
-    JSON.parse(localStorage.getItem("user"))
-      }
+  }
 
   return (
     <div className="container">
@@ -41,6 +40,7 @@ export default function Login() {
       />
 
       <button onClick={login}>Entrar</button>
+      <Link to="/register">Criar conta</Link>
     </div>
   );
   

@@ -5,6 +5,7 @@ import Login from "./pages/Login";
 import { useState, useEffect } from "react";
 import { useCart } from "./context/CartContext";
 import Toast from "./components/Toast";
+import Register from "./pages/Register";
 
 function App() {
   const { toast } = useCart();
@@ -21,6 +22,8 @@ function App() {
   return (
     <BrowserRouter>
       <Routes>
+
+        <Route path="/register" element={<Register />} />
 
         <Route path="/login" element={<Login />} />
         {/* 👉 se não estiver logado, força login */}
