@@ -11,6 +11,7 @@ export default function Home() {
   useEffect(() => {
     async function fetchData() {
       const data = await getProdutos();
+      console.log("PRODUTOS:", data);
       setProdutos(Array.isArray(data) ? data : []);
     }
     fetchData();
