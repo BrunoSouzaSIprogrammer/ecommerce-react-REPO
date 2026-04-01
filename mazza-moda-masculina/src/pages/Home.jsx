@@ -18,7 +18,7 @@ export default function Home() {
   }, []);
 
   const produtosFiltrados = (produtos || []).filter(p =>
-    p.nome.toLowerCase().includes(busca.toLowerCase())
+    (p.nome || "").toLowerCase().includes(busca.toLowerCase())
   );
 
   return (
