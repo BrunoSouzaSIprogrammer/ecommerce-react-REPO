@@ -1,5 +1,8 @@
 node_modules
 # firebase
 backend/config/mazza-store-firebase-adminsdk-fbsvc-a631553ef7.json
+# env files
+backend/.env
+.claude
 !package.json
 !package-lock.json

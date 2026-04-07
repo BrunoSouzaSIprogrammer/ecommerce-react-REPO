@@ -1,23 +1,32 @@
+require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
+
 const pedidosRoutes = require("./routes/pedidos");
 const authRoutes = require("./routes/auth");
+const categoriasRoutes = require("./routes/categorias");
+const produtosRoutes = require("./routes/produtos");
+const financeiroRoutes = require("./routes/financeiro");
 
 const app = express();
 
 app.use(cors());
 app.use(express.json());
+
+// Rotas públicas
 app.use("/", authRoutes);
-
-app.use("/pedidos", pedidosRoutes);
-
-const categoriasRoutes = require("./routes/categorias");
-const produtosRoutes = require("./routes/produtos");
-
 app.use("/categorias", categoriasRoutes);
 app.use("/produtos", produtosRoutes);
+
+// Rotas protegidas
+app.use("/pedidos", pedidosRoutes);
+app.use("/financeiro", financeiroRoutes);
+
+// Static uploads
 app.use("/uploads", express.static("uploads"));
 
-app.listen(5000, () => {
-  console.log("🔥 Servidor rodando em http://localhost:5000");
+const PORT = process.env.PORT || 5000;
+
+app.listen(PORT, () => {
+  console.log(`🔥 Servidor rodando em http://localhost:${PORT}`);
 });
