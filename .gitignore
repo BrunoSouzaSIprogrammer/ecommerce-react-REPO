@@ -6,4 +6,3 @@ backend/.env
 .claude
 !package.json
 !package-lock.json
-backend/controllers/authController.js
