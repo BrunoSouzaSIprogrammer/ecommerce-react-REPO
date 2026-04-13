@@ -1,47 +1,115 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { Link } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
+import { login } from "../services/api";
+import useTheme from "../hooks/useTheme";
+import "../styles/auth.css";
 
 export default function Login() {
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
-  async function login() {
-    const res = await fetch("http://localhost:5000/login", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email, senha })
-    });
+  const { theme, setTheme } = useTheme();
 
-    const data = await res.json();
+  async function handleLogin(e) {
+    e.preventDefault();
+    setError("");
+    setLoading(true);
 
-    if (!res.ok) {
-      alert(data.error || "Login inválido");
-      return;
+    try {
+      const data = await login(email, senha);
+      localStorage.setItem("user", JSON.stringify(data));
+      navigate("/");
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
     }
-
-    localStorage.setItem("user", JSON.stringify(data));
-    navigate("/");
   }
 
   return (
-    <div className="container">
-      <h2>Login</h2>
+    <div className={`auth-page ${theme}`}>
+      <button
+        className="theme-toggle"
+        onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+        aria-label="Alternar tema"
+      >
+        {theme === "dark" ? "☀️" : "🌙"}
+      </button>
 
-      <input
-        placeholder="Email"
-        onChange={(e) => setEmail(e.target.value)}
-      />
+      <div className="auth-container">
+        <div className="auth-card">
+          <div className="auth-header">
+            <h1 className="auth-logo">MAZZA</h1>
+            <p className="auth-subtitle">Moda Masculina</p>
+          </div>
 
-      <input
-        type="password"
-        placeholder="Senha"
-        onChange={(e) => setSenha(e.target.value)}
-      />
+          <h2 className="auth-title">Bem-vindo de volta</h2>
+          <p className="auth-description">
+            Acesse sua conta para continuar suas compras
+          </p>
 
-      <button onClick={login}>Entrar</button>
-      <Link to="/register">Criar conta</Link>
+          {error && (
+            <div className="auth-error">
+              <span>⚠️</span> {error}
+            </div>
+          )}
+
+          <form onSubmit={handleLogin} className="auth-form">
+            <div className="form-group">
+              <label htmlFor="email">E-mail</label>
+              <input
+                id="email"
+                type="email"
+                placeholder="seu@email.com"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+                disabled={loading}
+              />
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="senha">Senha</label>
+              <input
+                id="senha"
+                type="password"
+                placeholder="••••••••"
+                value={senha}
+                onChange={(e) => setSenha(e.target.value)}
+                required
+                disabled={loading}
+              />
+            </div>
+
+            <button
+              type="submit"
+              className="auth-button"
+              disabled={loading}
+            >
+              {loading ? (
+                <span className="loading-spinner">Entrando...</span>
+              ) : (
+                "Entrar"
+              )}
+            </button>
+          </form>
+
+          <p className="auth-footer">
+            Não tem uma conta?{" "}
+            <Link to="/register" className="auth-link">
+              Criar conta
+            </Link>
+          </p>
+        </div>
+
+        <div className="auth-decoration">
+          <div className="decoration-circle decoration-circle-1"></div>
+          <div className="decoration-circle decoration-circle-2"></div>
+          <div className="decoration-circle decoration-circle-3"></div>
+        </div>
+      </div>
     </div>
   );
-  
 }

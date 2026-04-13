@@ -1,70 +1,74 @@
-import { useCart } from "../context/CartContext";
 import { useState } from "react";
-import Toast from "./Toast";
-import { animateToCart } from "../utils/animateToCart";
+import { useCart } from "../context/CartContext";
+import "../styles/product-card.css";
 
-export default function ProductCard({ produto }) {
-  const { addToCart } = useCart();
-  const [added, setAdded] = useState(false);
-  const [showToast, setShowToast] = useState(false);
+export default function ProductCard({ produto, onAddToCart, theme = "dark" }) {
+  const [isHovered, setIsHovered] = useState(false);
+  const [isAdding, setIsAdding] = useState(false);
 
-  function handleAdd(e) {
-    animateToCart(e); // 💥 animação
+  const precoFormatado = typeof produto.preco === 'number'
+    ? produto.preco.toFixed(2)
+    : (produto.preco || '0');
 
-    addToCart(produto);
-    showToast("Produto adicionado ao carrinho");
-
-    setAdded(true);
-    setShowToast(true);
-
-    setTimeout(() => setAdded(false), 2000);
-    setTimeout(() => setShowToast(false), 2000);
-  }
+  const handleAddToCart = (e) => {
+    setIsAdding(true);
+    onAddToCart?.(produto);
+    setTimeout(() => setIsAdding(false), 500);
+  };
 
   return (
-    <>
-      <div style={{
-        background: "var(--card)",
-        borderRadius: "16px",
-        padding: "15px",
-        border: "1px solid var(--border)"
-      }}>
+    <div
+      className={`product-card ${theme}`}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+    >
+      <div className="product-image-wrapper">
         <img
-          src={produto.imagem 
+          src={produto.imagem
             ? `http://localhost:5000/uploads/${produto.imagem}`
-            : "https://picsum.photos/300"}
+            : "https://picsum.photos/400/400"}
           alt={produto.nome}
-          style={{ width: "100%", borderRadius: "10px" }}
+          className="product-image"
         />
-
-        <h3>{produto.nome}</h3>
-
-        <p style={{ color: "var(--primary)", fontWeight: "bold" }}>
-          R$ {produto.preco}
-        </p>
-
-        <button
-          onClick={handleAdd}
-          style={{
-            marginTop: "10px",
-            padding: "10px",
-            border: "none",
-            borderRadius: "8px",
-            background: added ? "#4CAF50" : "var(--primary)",
-            color: "#000",
-            fontWeight: "bold",
-            cursor: "pointer",
-            transition: "0.3s"
-          }}
-        >
-          {added ? "✔ Adicionado" : "Comprar"}
-        </button>
+        {produto.destaque && (
+          <span className="featured-badge">⭐ Destaque</span>
+        )}
+        {produto.estoque !== undefined && produto.estoque <= 5 && (
+          <span className="stock-warning">
+            {produto.estoque > 0 ? `Apenas ${produto.estoque} restantes` : 'Esgotado'}
+          </span>
+        )}
       </div>
 
-      <Toast
-        message="Produto adicionado ao carrinho"
-        show={showToast}
-      />
-    </>
+      <div className="product-info">
+        <h3 className="product-name">{produto.nome}</h3>
+
+        <div className="product-price-wrapper">
+          <span className="product-price">
+            R$ {Number(precoFormatado).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+          </span>
+        </div>
+
+        <button
+          className={`add-to-cart-btn ${isAdding ? 'adding' : ''} ${produto.estoque === 0 ? 'out-of-stock' : ''}`}
+          onClick={handleAddToCart}
+          disabled={produto.estoque === 0}
+        >
+          {isAdding ? (
+            <>
+              <span className="btn-check">✓</span>
+              <span>Adicionado</span>
+            </>
+          ) : produto.estoque === 0 ? (
+            'Esgotado'
+          ) : (
+            <>
+              <span className="btn-cart-icon">🛒</span>
+              <span>Adicionar</span>
+            </>
+          )}
+        </button>
+      </div>
+    </div>
   );
 }
