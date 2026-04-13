@@ -1,4 +1,6 @@
+require("dotenv").config();
 const db = require("../config/firebase");
+const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 
 // ================= CONFIGURAÇÃO DE COMISSÃO =================
 const COMISSAO_COLLECTION = "config_comissao";
@@ -50,7 +52,7 @@ exports.criarPedido = async (req, res) => {
   try {
     const { itens, total, metodoPagamento, dadosPagamento } = req.body;
 
-    // Validações
+    // Validações básicas
     if (!itens || !Array.isArray(itens) || itens.length === 0) {
       return res.status(400).json({ error: "Itens são obrigatórios" });
     }
@@ -65,11 +67,38 @@ exports.criarPedido = async (req, res) => {
       });
     }
 
+    // Valida estoque dos produtos
+    const errosEstoque = await validarEstoqueProdutos(itens);
+    if (errosEstoque.length > 0) {
+      return res.status(400).json({
+        error: "Problemas no estoque",
+        detalhes: errosEstoque
+      });
+    }
+
     // Calcula comissão do ADMIN
     const configComissao = await getComissaoConfig();
     const porcentagemComissao = configComissao.porcentagem / 100;
     const valorComissaoAdmin = total * porcentagemComissao;
     const valorLoja = total - valorComissaoAdmin;
+
+    // Processa pagamento conforme método
+    let pagamentoProcessado = false;
+    let paymentId = null;
+
+    if (metodoPagamento === "cartao_credito" || metodoPagamento === "cartao_debito") {
+      // Processa pagamento com Stripe
+      const resultado = await processarPagamentoCartao(total, metodoPagamento, dadosPagamento);
+      pagamentoProcessado = resultado.success;
+      paymentId = resultado.paymentId;
+
+      if (!resultado.success) {
+        return res.status(402).json({
+          error: "Pagamento recusado",
+          paymentId: resultado.paymentId
+        });
+      }
+    }
 
     const novoPedido = {
       itens,
@@ -79,17 +108,21 @@ exports.criarPedido = async (req, res) => {
       metodoPagamento,
       dadosPagamento: dadosPagamento || {},
       status: metodoPagamento === "pix" ? "aguardando_pagamento" : "processando",
-      statusPagamento: "pendente",
+      statusPagamento: metodoPagamento === "pix" ? "pendente" : (pagamentoProcessado ? "pago" : "pendente"),
       comissaoAdmin: valorComissaoAdmin,
       valorLoja: valorLoja,
       porcentagemComissao: configComissao.porcentagem,
+      paymentId,
       criadoEm: db.firestore.FieldValue.serverTimestamp(),
       atualizadoEm: db.firestore.FieldValue.serverTimestamp()
     };
 
-    // Se for PIX, gera a chave PIX (simulado - em produção integrar com API do banco)
+    // Se for PIX, gera o código PIX e QR Code
     if (metodoPagamento === "pix") {
-      novoPedido.pixCode = gerarPixCode(total);
+      const pixData = gerarPixCode(total, req.user.email);
+      novoPedido.pixCode = pixData.codigo;
+      novoPedido.pixChave = pixData.chavePix;
+      novoPedido.pixQrCode = pixData.qrcode;
       novoPedido.pixVencimento = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24h
     }
 
@@ -109,17 +142,28 @@ exports.criarPedido = async (req, res) => {
       });
     }
 
-    res.json({
+    const resposta = {
       message: "Pedido criado com sucesso",
       id: docRef.id,
-      pixCode: novoPedido.pixCode,
-      pixVencimento: novoPedido.pixVencimento,
       comissaoAdmin: valorComissaoAdmin,
       valorLoja: valorLoja
-    });
+    };
+
+    if (metodoPagamento === "pix") {
+      resposta.pixCode = novoPedido.pixCode;
+      resposta.pixChave = novoPedido.pixChave;
+      resposta.pixQrCode = novoPedido.pixQrCode;
+      resposta.pixVencimento = novoPedido.pixVencimento;
+    }
+
+    if (paymentId) {
+      resposta.paymentId = paymentId;
+    }
+
+    res.json(resposta);
   } catch (error) {
     console.error("ERRO CRIAR PEDIDO:", error.message);
-    res.status(500).json({ error: "Erro ao criar pedido" });
+    res.status(500).json({ error: "Erro ao criar pedido: " + error.message });
   }
 };
 
@@ -264,10 +308,69 @@ exports.getResumoFinanceiro = async (req, res) => {
 };
 
 // ================= HELPER: Gerar código PIX (simulado) =================
-function gerarPixCode(valor) {
-  // Em produção, integrar com API do banco para gerar PIX real
-  // Este é um código simulado
+function gerarPixCode(valor, email) {
+  // Em produção, integrar com API do banco (Banco Central, Gerencianet, etc.)
+  // Este é um código simulado para desenvolvimento
   const timestamp = Date.now().toString(36).toUpperCase();
   const valorFormatado = valor.toFixed(2).replace('.', '');
-  return `PIX-MAZZA-${timestamp}-${valorFormatado}`;
+  const chavePix = process.env.PIX_KEY || "jackfrostbr3210@gmail.com";
+
+  return {
+    codigo: `PIX-MAZZA-${timestamp}-${valorFormatado}`,
+    chavePix,
+    qrcode: `00020126${String(58 + chavePix.length).padStart(2, '0')}BR.GOV.BCB.PIX${chavePix.length}${chavePix}52040000530398654${String(valorFormatado.length).padStart(2, '0')}${valorFormatado}5802BR5913MAZZA MODA6008SAO PAULO62${String(21 + timestamp.length).padStart(2, '0')}05${timestamp.length}${timestamp}6304ABCD`
+  };
+}
+
+// ================= PROCESSAR PAGAMENTO CARTÃO (Stripe) =================
+async function processarPagamentoCartao(total, metodoPagamento, dadosPagamento) {
+  if (!process.env.STRIPE_SECRET_KEY || process.env.STRIPE_SECRET_KEY === "") {
+    // Ambiente de desenvolvimento sem Stripe configurado
+    return { success: true, paymentId: "dev_card_payment_" + Date.now() };
+  }
+
+  try {
+    const paymentIntent = await stripe.paymentIntents.create({
+      amount: Math.round(total * 100), // Stripe usa centavos
+      currency: "brl",
+      payment_method_types: [metodoPagamento === "cartao_credito" ? "card" : "debit_card"],
+      payment_method: dadosPagamento.paymentMethodId,
+      confirm: true,
+      return_url: dadosPagamento.returnUrl || "http://localhost:3000/pedido/sucesso"
+    });
+
+    return {
+      success: paymentIntent.status === "succeeded",
+      paymentId: paymentIntent.id,
+      status: paymentIntent.status
+    };
+  } catch (error) {
+    console.error("Erro processamento Stripe:", error.message);
+    throw new Error("Falha no processamento do cartão: " + error.message);
+  }
+}
+
+// ================= VALIDAR QUANTIDADE DE PRODUTOS =================
+async function validarEstoqueProdutos(itens) {
+  const erros = [];
+
+  for (const item of itens) {
+    const produtoRef = db.firestore().collection("produtos").doc(item.id);
+    const produtoDoc = await produtoRef.get();
+
+    if (!produtoDoc.exists) {
+      erros.push(`Produto "${item.nome || item.id}" não encontrado`);
+      continue;
+    }
+
+    const produtoData = produtoDoc.data();
+    const estoqueAtual = produtoData.estoque || 0;
+    const quantidadeSolicitada = item.quantidade || 1;
+
+    if (estoqueAtual < quantidadeSolicitada) {
+      erros.push(`Produto "${produtoData.nome}" tem apenas ${estoqueAtual} em estoque`);
+    }
+  }
+
+  return erros;
 }

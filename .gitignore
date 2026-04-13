@@ -11,16 +11,30 @@ mazza-moda-masculina/node_modules/
 .env.production.local
 backend/.env
 backend/.env.local
+mazza-moda-masculina/.env
 
 # ================= CHAVES DE ACESSO / CREDENCIAIS =================
 # Firebase Admin SDK
 backend/config/*-adminsdk-*.json
 backend/config/serviceAccountKey.json
 backend/config/firebase-admin-*.json
+backend/config/*.json
 
 # Qualquer arquivo JSON na pasta config que contenha "key" ou "admin"
 backend/config/*key*.json
 backend/config/*admin*.json
+
+# Configurações de comissão e pagamento
+backend/config/pagamento.json
+backend/config/comissao.json
+**/config/pix_keys.json
+**/config/stripe_keys.json
+
+# ================= ARQUIVOS PRIVADOS =================
+*.private.*
+**/SENSIVEL.md
+**/CONFIGURACAO_ADMIN.md
+**/internal_docs/
 
 # ================= BUILD / DIST =================
 build/

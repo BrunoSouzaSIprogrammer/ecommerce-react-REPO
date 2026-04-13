@@ -173,7 +173,12 @@ export const createPedido = async (pedido, token) => {
       "Content-Type": "application/json",
       Authorization: `Bearer ${token}`
     },
-    body: JSON.stringify(pedido)
+    body: JSON.stringify({
+      itens: pedido.itens,
+      total: pedido.total,
+      metodoPagamento: pedido.metodoPagamento,
+      dadosPagamento: pedido.dadosPagamento || {}
+    })
   });
 
   if (!res.ok) {
@@ -181,6 +186,13 @@ export const createPedido = async (pedido, token) => {
     throw new Error(error.error || "Erro ao criar pedido");
   }
 
+  return res.json();
+};
+
+export const getComissaoConfig = async (token) => {
+  const res = await fetch(`${API_URL}/pedidos/comissao/config`, {
+    headers: { Authorization: `Bearer ${token}` }
+  });
   return res.json();
 };
 

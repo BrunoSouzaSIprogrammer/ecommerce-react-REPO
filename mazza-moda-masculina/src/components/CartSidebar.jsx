@@ -1,35 +1,18 @@
+import { useState } from "react";
 import { useCart } from "../context/CartContext";
+import CheckoutModal from "./CheckoutModal";
 
 export default function CartSidebar({ open, onClose }) {
   const { cart, total, clearCart, removeFromCart } = useCart();
+  const [checkoutOpen, setCheckoutOpen] = useState(false);
 
-  async function finalizarCompra() {
-    try {
-      const user = JSON.parse(localStorage.getItem("user"));
+  function handleFinalizarCompra() {
+    setCheckoutOpen(true);
+  }
 
-      const response = await fetch("http://localhost:5000/pedidos", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-          itens: cart,
-          total,
-          userId: user?.uid || null
-        })
-      });
-
-      await response.json();
-
-      clearCart();
-      onClose();
-
-      alert("Pedido realizado com sucesso!");
-
-    } catch (error) {
-      console.error(error);
-      alert("Erro ao finalizar compra");
-    }
+  function handleCheckoutClose() {
+    setCheckoutOpen(false);
+    onClose();
   }
 
   return (
@@ -87,17 +70,23 @@ export default function CartSidebar({ open, onClose }) {
 
         <h3>Total: R$ {total}</h3>
 
-        <button onClick={finalizarCompra} style={{
-          padding: "12px",
-          borderRadius: "8px",
-          border: "none",
-          background: "var(--primary)",
-          fontWeight: "bold",
-          cursor: "pointer"
-        }}>
+        <button
+          onClick={handleFinalizarCompra}
+          style={{
+            padding: "12px",
+            borderRadius: "8px",
+            border: "none",
+            background: "var(--primary)",
+            fontWeight: "bold",
+            cursor: "pointer",
+            marginBottom: "10px"
+          }}
+        >
           Finalizar compra
         </button>
       </div>
+
+      <CheckoutModal open={checkoutOpen} onClose={handleCheckoutClose} />
     </>
   );
 }
