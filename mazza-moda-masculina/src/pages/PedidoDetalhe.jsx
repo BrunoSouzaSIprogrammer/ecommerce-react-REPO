@@ -16,6 +16,7 @@ import {
   progressoStatus,
   formatarData,
 } from "../utils/pedidoStatus";
+import { imagemProduto } from "../utils/imagemProduto";
 import "../styles/pedido-detalhe.css";
 
 function formatBRL(n) {
@@ -180,10 +181,12 @@ export default function PedidoDetalhe() {
             <section className="pedido-card-bloco">
               <h2>Itens ({pedido.itens?.length || 0})</h2>
               <div className="itens-lista">
-                {(pedido.itens || []).map((it, idx) => (
+                {(pedido.itens || []).map((it, idx) => {
+                  const src = imagemProduto(it);
+                  return (
                   <div key={idx} className="item-linha">
-                    {it.imagem && (
-                      <img src={it.imagem} alt={it.nome} />
+                    {src && (
+                      <img src={src} alt={it.nome} />
                     )}
                     <div className="item-info">
                       <strong>{it.nome}</strong>
@@ -199,7 +202,8 @@ export default function PedidoDetalhe() {
                       )}
                     </div>
                   </div>
-                ))}
+                  );
+                })}
               </div>
             </section>
 

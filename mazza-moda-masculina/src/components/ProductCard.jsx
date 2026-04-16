@@ -2,6 +2,8 @@ import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "../styles/product-card.css";
 
+const API_URL = process.env.REACT_APP_API_URL || "http://localhost:5000";
+
 export default function ProductCard({ produto, onAddToCart, theme = "dark" }) {
   const navigate = useNavigate();
   const [isAdding, setIsAdding] = useState(false);
@@ -58,7 +60,7 @@ export default function ProductCard({ produto, onAddToCart, theme = "dark" }) {
         <img
           src={
             imagemAtual
-              ? `http://localhost:5000/uploads/${imagemAtual}`
+              ? `${API_URL}/uploads/${imagemAtual}`
               : "https://picsum.photos/400/400"
           }
           alt={produto.nome}

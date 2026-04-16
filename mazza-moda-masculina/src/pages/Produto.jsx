@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
+import CategoriaIcone from "../components/CategoriaIcone";
 import useTheme from "../hooks/useTheme";
 import { useCart } from "../context/CartContext";
 import { useAuth } from "../context/AuthContext";
@@ -16,6 +17,7 @@ import "../styles/produto.css";
 // Favoritos de visitantes (não autenticados) ficam em localStorage.
 // Ao fazer login, a migração para o backend acontece automaticamente.
 const FAV_KEY = "mazza:favoritos";
+const API_URL = process.env.REACT_APP_API_URL || "http://localhost:5000";
 
 function lerFavoritosLocal() {
   try {
@@ -151,7 +153,7 @@ export default function Produto() {
 
   const imagemAtual = imagens[imagemIdx];
   const imagemUrl = imagemAtual
-    ? `http://localhost:5000/uploads/${imagemAtual}`
+    ? `${API_URL}/uploads/${imagemAtual}`
     : "https://picsum.photos/600/800";
 
   function proximaImagem() {
@@ -257,7 +259,7 @@ export default function Produto() {
                   onClick={() => setImagemIdx(idx)}
                 >
                   <img
-                    src={`http://localhost:5000/uploads/${img}`}
+                    src={`${API_URL}/uploads/${img}`}
                     alt={`${produto.nome} ${idx + 1}`}
                   />
                 </button>
@@ -270,7 +272,7 @@ export default function Produto() {
         <div className="produto-detalhes">
           {catDef && (
             <span className="produto-categoria">
-              {catDef.icone} {catDef.label}
+              <CategoriaIcone categoria={catDef.id} size={16} /> {catDef.label}
             </span>
           )}
 

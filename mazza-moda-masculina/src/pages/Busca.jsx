@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import ProductCard from "../components/ProductCard";
+import CategoriaIcone from "../components/CategoriaIcone";
 import { getProdutos } from "../services/api";
 import { CATEGORIAS_POR_ID, CORES, ORDENACOES } from "../utils/filtros";
 import { useCart } from "../context/CartContext";
@@ -177,7 +178,9 @@ export default function Busca() {
               className={`cat-chip ${categoria === cat.id ? "active" : ""}`}
               onClick={() => setCategoria(cat.id)}
             >
-              <span className="chip-icon">{cat.icone}</span>
+              <span className="chip-icon">
+                <CategoriaIcone categoria={cat.id} size={16} />
+              </span>
               <span>{cat.label}</span>
             </button>
           );

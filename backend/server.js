@@ -17,7 +17,24 @@ const bannersRoutes = require("./routes/banners");
 
 const app = express();
 
-app.use(cors());
+// CORS — em prod libera apenas origens listadas em FRONTEND_ORIGINS
+// (separadas por vírgula). Em dev libera geral.
+const origensPermitidas = (process.env.FRONTEND_ORIGINS || "")
+  .split(",")
+  .map((s) => s.trim())
+  .filter(Boolean);
+
+app.use(
+  cors({
+    origin: (origin, cb) => {
+      if (!origin) return cb(null, true); // curl, Postman, server-to-server
+      if (origensPermitidas.length === 0) return cb(null, true); // dev
+      if (origensPermitidas.includes(origin)) return cb(null, true);
+      return cb(new Error(`CORS bloqueado para origem: ${origin}`));
+    },
+    credentials: true,
+  }),
+);
 app.use(express.json());
 
 // Rotas públicas

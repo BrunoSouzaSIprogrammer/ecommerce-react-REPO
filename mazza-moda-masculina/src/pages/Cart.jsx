@@ -5,6 +5,7 @@ import useTheme from "../hooks/useTheme";
 import { useCart } from "../context/CartContext";
 import { calcularFrete } from "../services/api";
 import { limparCep, formatarCep } from "../utils/viacep";
+import { imagemProduto } from "../utils/imagemProduto";
 import "../styles/carrinho.css";
 
 function formatBRL(n) {
@@ -12,16 +13,6 @@ function formatBRL(n) {
     style: "currency",
     currency: "BRL",
   });
-}
-
-function imagemProduto(item) {
-  const arq =
-    (Array.isArray(item.imagens) && item.imagens[0]) ||
-    item.imagem ||
-    item.image;
-  if (!arq) return null;
-  if (/^https?:\/\//i.test(arq)) return arq;
-  return `http://localhost:5000/uploads/${arq}`;
 }
 
 export default function Cart() {

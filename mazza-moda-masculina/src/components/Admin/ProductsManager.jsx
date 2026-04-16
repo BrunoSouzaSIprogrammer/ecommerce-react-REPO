@@ -1,6 +1,8 @@
 import { useEffect, useState, useRef } from "react";
 import { useAuth } from "../../context/AuthContext";
 import { useCart } from "../../context/CartContext";
+
+const API_URL = process.env.REACT_APP_API_URL || "http://localhost:5000";
 import {
   getProdutosAdmin,
   createProduto,
@@ -281,7 +283,7 @@ export default function ProductsManager() {
                       <img
                         src={
                           produto.imagem
-                            ? `http://localhost:5000/uploads/${produto.imagem}`
+                            ? `${API_URL}/uploads/${produto.imagem}`
                             : "https://picsum.photos/50"
                         }
                         alt={produto.nome}

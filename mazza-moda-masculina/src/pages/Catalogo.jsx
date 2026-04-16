@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import ProductCard from "../components/ProductCard";
+import CategoriaIcone from "../components/CategoriaIcone";
 import useTheme from "../hooks/useTheme";
 import { useCart } from "../context/CartContext";
 import { listarProdutos } from "../services/api";
@@ -146,7 +147,10 @@ export default function Catalogo() {
                 className="catalogo-chip"
                 onClick={() => navigate(`/catalogo/${c.id}`)}
               >
-                <span className="chip-icon">{c.icone}</span> {c.label}
+                <span className="chip-icon">
+                  <CategoriaIcone categoria={c.id} size={16} />
+                </span>{" "}
+                {c.label}
               </button>
             ))}
           </div>
@@ -175,7 +179,9 @@ export default function Catalogo() {
             }`}
             onClick={() => navigate(`/catalogo/${c.id}`)}
           >
-            <span className="tab-icon">{c.icone}</span>
+            <span className="tab-icon">
+              <CategoriaIcone categoria={c.id} size={20} />
+            </span>
             <span className="tab-label">{c.label}</span>
           </button>
         ))}
@@ -378,7 +384,9 @@ export default function Catalogo() {
         <section className="catalogo-resultados">
           <header className="resultados-header">
             <h2 className="resultados-titulo">
-              <span className="cat-icon">{categoriaDef.icone}</span>{" "}
+              <span className="cat-icon">
+                <CategoriaIcone categoria={categoriaDef.id} size={22} />
+              </span>{" "}
               {categoriaDef.label}
               <span className="resultados-count">
                 {loading ? "…" : `${produtos.length} produto${

@@ -3,6 +3,8 @@ import { useAuth } from "../../context/AuthContext";
 import { rankingFavoritos } from "../../services/api";
 import "../../styles/admin-favoritos.css";
 
+const API_URL = process.env.REACT_APP_API_URL || "http://localhost:5000";
+
 function formatBRL(n) {
   return (Number(n) || 0).toLocaleString("pt-BR", {
     style: "currency",
@@ -73,7 +75,7 @@ export default function FavoritosRanking() {
             const imagens = Array.isArray(p?.imagens) ? p.imagens : [];
             const primeiraImg = imagens[0] || p?.imagem;
             const imagemUrl = primeiraImg
-              ? `http://localhost:5000/uploads/${primeiraImg}`
+              ? `${API_URL}/uploads/${primeiraImg}`
               : "https://picsum.photos/200/260";
 
             return (

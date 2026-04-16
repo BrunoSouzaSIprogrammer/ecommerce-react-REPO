@@ -1,21 +1,12 @@
 import { useNavigate } from "react-router-dom";
 import { useCart } from "../context/CartContext";
+import { imagemProduto } from "../utils/imagemProduto";
 
 function formatBRL(n) {
   return (Number(n) || 0).toLocaleString("pt-BR", {
     style: "currency",
     currency: "BRL",
   });
-}
-
-function imagemProduto(item) {
-  const arq =
-    (Array.isArray(item.imagens) && item.imagens[0]) ||
-    item.imagem ||
-    item.image;
-  if (!arq) return null;
-  if (/^https?:\/\//i.test(arq)) return arq;
-  return `http://localhost:5000/uploads/${arq}`;
 }
 
 export default function CartSidebar({ open, onClose }) {

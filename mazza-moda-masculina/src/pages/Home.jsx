@@ -2,6 +2,7 @@ import { useEffect, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import ProductCard from "../components/ProductCard";
+import CategoriaIcone from "../components/CategoriaIcone";
 import { getProdutos, listarBannersAtivos } from "../services/api";
 import { CATEGORIAS } from "../utils/filtros";
 import { useAuth } from "../context/AuthContext";
@@ -168,7 +169,9 @@ export default function Home() {
                     navigate(`/catalogo/${cat.id}`);
                   }}
                 >
-                  <span className="discover-cat-icon">{cat.icone}</span>
+                  <span className="discover-cat-icon">
+                    <CategoriaIcone categoria={cat.id} size={28} />
+                  </span>
                   <span className="discover-cat-label">{cat.label}</span>
                 </button>
               ))}

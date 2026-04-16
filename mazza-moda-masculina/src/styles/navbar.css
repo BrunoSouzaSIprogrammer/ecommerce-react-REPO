@@ -52,7 +52,6 @@
   letter-spacing: 0px;
   color: var(--mazza-primary);
   margin: 0;
-  text-transform: uppercase;
   text-shadow: 0 0 20px var(--primary-soft);
   transition: all 0.3s ease;
 }

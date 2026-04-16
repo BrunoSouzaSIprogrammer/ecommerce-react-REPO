@@ -180,33 +180,3 @@ exports.emailPagamentoConfirmado = async (email, pedido) => {
   return enviar(email, `Pagamento confirmado — Pedido #${pedido.id}`, html);
 };
 
-exports.emailCupomEmitido = async (email, cupom) => {
-  const descricao =
-    cupom.tipo === "percentual"
-      ? `${cupom.valor}% de desconto`
-      : `${formatarPreco(cupom.valor)} de desconto`;
-
-  let condicoes = "";
-  if (cupom.valorMinimo) {
-    condicoes += `<li>Pedido mínimo de ${formatarPreco(cupom.valorMinimo)}</li>`;
-  }
-  if (cupom.categorias?.length) {
-    condicoes += `<li>Válido para: ${cupom.categorias.join(", ")}</li>`;
-  }
-  if (cupom.limiteUsos) {
-    condicoes += `<li>Limitado a ${cupom.limiteUsos} usos</li>`;
-  }
-
-  const html = layoutBase(`
-    <h2 style="color:#c9a227;margin:0 0 16px;">Cupom Exclusivo para Você!</h2>
-    <div style="background:#1a1a1a;border:2px dashed #c9a227;border-radius:10px;padding:24px;margin:16px 0;text-align:center;">
-      <p style="margin:0 0 8px;color:#999;font-size:13px;text-transform:uppercase;letter-spacing:1px;">Use o código</p>
-      <p style="margin:0;font-size:28px;font-weight:800;color:#c9a227;letter-spacing:3px;">${cupom.codigo}</p>
-      <p style="margin:12px 0 0;color:#fff;font-size:16px;">${descricao}</p>
-    </div>
-    ${condicoes ? `<p style="color:#ccc;">Condições:</p><ul style="color:#999;">${condicoes}</ul>` : ""}
-    <p>Aproveite! Acesse a loja e aplique o cupom no checkout.</p>
-  `);
-
-  return enviar(email, `Cupom ${cupom.codigo} — ${descricao}`, html);
-};

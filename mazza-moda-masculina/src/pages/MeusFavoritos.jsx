@@ -3,6 +3,8 @@ import { useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import useTheme from "../hooks/useTheme";
 import { useAuth } from "../context/AuthContext";
+
+const API_URL = process.env.REACT_APP_API_URL || "http://localhost:5000";
 import { listarFavoritos, removerFavorito } from "../services/api";
 import "../styles/meus-favoritos.css";
 
@@ -83,7 +85,7 @@ export default function MeusFavoritos() {
               const imagens = Array.isArray(p.imagens) ? p.imagens : [];
               const primeiraImg = imagens[0] || p.imagem;
               const imagemUrl = primeiraImg
-                ? `http://localhost:5000/uploads/${primeiraImg}`
+                ? `${API_URL}/uploads/${primeiraImg}`
                 : "https://picsum.photos/400/500";
 
               return (
