@@ -9,13 +9,24 @@ import { useCart } from "../context/CartContext";
 import useTheme from "../hooks/useTheme";
 import "../styles/home.css";
 
+const CATEGORIAS_PRINCIPAIS = [
+  "camisetas",
+  "blusas",
+  "calcas",
+  "bermudas",
+  "shorts",
+  "calcados",
+  "bones",
+  "acessorios",
+];
+
 export default function Home() {
   const [produtos, setProdutos] = useState([]);
   const [banners, setBanners] = useState([]);
   const [bannerIdx, setBannerIdx] = useState(0);
-  const [busca, setBusca] = useState("");
   const [loading, setLoading] = useState(true);
-  const [filtroCategoria, setFiltroCategoria] = useState("");
+  const [catsOpen, setCatsOpen] = useState(false);
+  const catsRef = useRef(null);
   const destaqueRef = useRef(null);
   const { user, signOut } = useAuth();
   const { theme, setTheme } = useTheme();
@@ -40,7 +51,16 @@ export default function Home() {
       }
     }
     fetchData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  useEffect(() => {
+    function onClickOutside(e) {
+      if (catsRef.current && !catsRef.current.contains(e.target)) setCatsOpen(false);
+    }
+    if (catsOpen) document.addEventListener("mousedown", onClickOutside);
+    return () => document.removeEventListener("mousedown", onClickOutside);
+  }, [catsOpen]);
 
   useEffect(() => {
     if (banners.length <= 1) return;
@@ -50,16 +70,11 @@ export default function Home() {
     return () => clearInterval(timer);
   }, [banners.length]);
 
-  const produtosFiltrados = (produtos || []).filter((p) => {
-    const matchBusca = (p.nome || "").toLowerCase().includes(busca.toLowerCase());
-    const matchCategoria = !filtroCategoria || p.categoriaId === filtroCategoria;
-    return matchBusca && matchCategoria;
-  });
-
   const produtosEmDestaque = produtos.filter((p) => p.destaque);
-  const categorias = [...new Set(produtos.map((p) => p.categoriaId))].filter(Boolean);
 
-  const categoriasComDados = CATEGORIAS.filter((cat) => categorias.includes(cat.id));
+  const categoriasDisponiveis = CATEGORIAS.filter((c) =>
+    CATEGORIAS_PRINCIPAIS.includes(c.id)
+  );
 
   const handleAddToCart = (produto) => {
     addToCart(produto);
@@ -114,68 +129,49 @@ export default function Home() {
               <span className="hero-highlight">MAZZA</span> Moda Masculina
             </h1>
             <p className="hero-subtitle">Estilo e elegância para o homem moderno</p>
-            <button
-              className="hero-cta"
-              onClick={() => document.getElementById("produtos")?.scrollIntoView({ behavior: "smooth" })}
-            >
-              Ver Coleção
-            </button>
-          </div>
-          <div className="hero-decoration">
-            <div className="hero-circle hero-circle-1"></div>
-            <div className="hero-circle hero-circle-2"></div>
           </div>
         </section>
       )}
 
-      {/* Categorias com ícones */}
-      {categoriasComDados.length > 0 && (
-        <section className="categories-strip">
-          <div className="categories-scroll">
-            {categoriasComDados.map((cat) => (
-              <button
-                key={cat.id}
-                className={`category-chip ${filtroCategoria === cat.id ? "active" : ""}`}
-                onClick={() => navigate(`/catalogo/${cat.id}`)}
-              >
-                <span className="chip-icon">{cat.icone}</span>
-                <span className="chip-label">{cat.label}</span>
-              </button>
-            ))}
-          </div>
-        </section>
-      )}
+      {/* Busca + Categorias lado a lado */}
+      <section className="discover-bar">
+        <button
+          type="button"
+          className="discover-search"
+          onClick={() => navigate("/busca")}
+        >
+          <span className="discover-search-icon">🔍</span>
+          <span className="discover-search-text">Pesquisar produtos, marcas...</span>
+        </button>
 
-      {/* Busca e Filtros */}
-      <section className="filters-section" id="produtos">
-        <div className="filters-container">
-          <div className="search-wrapper">
-            <input
-              type="text"
-              placeholder="Buscar produtos..."
-              value={busca}
-              onChange={(e) => setBusca(e.target.value)}
-              className="search-input"
-            />
-            <span className="search-icon">🔍</span>
-          </div>
-
-          {categorias.length > 0 && (
-            <select
-              value={filtroCategoria}
-              onChange={(e) => setFiltroCategoria(e.target.value)}
-              className="category-select"
-            >
-              <option value="">Todas categorias</option>
-              {categorias.map((cat) => {
-                const catDef = CATEGORIAS.find((c) => c.id === cat);
-                return (
-                  <option key={cat} value={cat}>
-                    {catDef ? `${catDef.icone} ${catDef.label}` : cat}
-                  </option>
-                );
-              })}
-            </select>
+        <div className="discover-cats-wrapper" ref={catsRef}>
+          <button
+            type="button"
+            className={`discover-cats-toggle ${catsOpen ? "open" : ""}`}
+            onClick={() => setCatsOpen((v) => !v)}
+            aria-expanded={catsOpen}
+          >
+            <span className="discover-cats-icon">🗂️</span>
+            <span className="discover-cats-label">Categorias</span>
+            <span className={`discover-cats-caret ${catsOpen ? "up" : ""}`}>▾</span>
+          </button>
+          {catsOpen && (
+            <div className="discover-cats-panel" role="menu">
+              {categoriasDisponiveis.map((cat) => (
+                <button
+                  key={cat.id}
+                  className="discover-cat-item"
+                  role="menuitem"
+                  onClick={() => {
+                    setCatsOpen(false);
+                    navigate(`/catalogo/${cat.id}`);
+                  }}
+                >
+                  <span className="discover-cat-icon">{cat.icone}</span>
+                  <span className="discover-cat-label">{cat.label}</span>
+                </button>
+              ))}
+            </div>
           )}
         </div>
       </section>
@@ -209,12 +205,10 @@ export default function Home() {
       )}
 
       {/* Todos os Produtos */}
-      <section className="products-section">
+      <section className="products-section" id="produtos">
         <div className="section-header">
-          <h2 className="section-title">
-            {produtosEmDestaque.length > 0 ? "Todos os Produtos" : "Produtos"}
-          </h2>
-          <span className="products-count">{produtosFiltrados.length} produtos</span>
+          <h2 className="section-title">Todos os Produtos</h2>
+          <span className="products-count">{produtos.length} produtos</span>
         </div>
 
         {loading ? (
@@ -222,25 +216,14 @@ export default function Home() {
             <div className="loading-spinner"></div>
             <p>Carregando produtos...</p>
           </div>
-        ) : produtosFiltrados.length === 0 ? (
+        ) : produtos.length === 0 ? (
           <div className="no-products">
             <span className="no-products-icon">🛍️</span>
-            <p>Nenhum produto encontrado</p>
-            {busca && (
-              <button
-                className="clear-filters"
-                onClick={() => {
-                  setBusca("");
-                  setFiltroCategoria("");
-                }}
-              >
-                Limpar filtros
-              </button>
-            )}
+            <p>Nenhum produto disponível</p>
           </div>
         ) : (
           <div className="products-grid">
-            {produtosFiltrados.map((produto) => (
+            {produtos.map((produto) => (
               <ProductCard
                 key={produto.id}
                 produto={produto}

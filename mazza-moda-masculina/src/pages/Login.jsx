@@ -63,7 +63,9 @@ export default function Login() {
               <label htmlFor="email">E-mail</label>
               <input
                 id="email"
+                name="email"
                 type="email"
+                autoComplete="username"
                 placeholder="seu@email.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
@@ -76,7 +78,9 @@ export default function Login() {
               <label htmlFor="senha">Senha</label>
               <input
                 id="senha"
+                name="senha"
                 type="password"
+                autoComplete="current-password"
                 placeholder="••••••••"
                 value={senha}
                 onChange={(e) => setSenha(e.target.value)}

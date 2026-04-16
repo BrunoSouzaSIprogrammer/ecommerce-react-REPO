@@ -52,6 +52,7 @@ export default function CuponsManager() {
   useEffect(() => {
     if (!user?.token) return;
     carregar();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user?.token]);
 
   async function carregar() {

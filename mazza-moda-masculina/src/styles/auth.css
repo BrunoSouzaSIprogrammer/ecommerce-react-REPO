@@ -22,16 +22,12 @@
   --mazza-light-border: #e0e0e0;
   --mazza-light-input: #fafafa;
 
-  /* Cor Primária da Marca */
-  --mazza-primary: #c9a227; /* Dourado premium */
-  --mazza-primary-hover: #b8911c;
-  --mazza-primary-light: #e5c55a;
-
   /* Cores de Feedback */
   --mazza-error: #dc3545;
   --mazza-error-bg: rgba(220, 53, 69, 0.1);
   --mazza-success: #28a745;
 }
+/* --mazza-primary e variantes: definidos em theme.css (theme-aware) */
 
 /* ============================================
    Página de Autenticação

@@ -15,12 +15,11 @@ exports.listarBanners = async (req, res) => {
 
 exports.listarBannersAtivos = async (_req, res) => {
   try {
-    const snapshot = await db
-      .collection(COLLECTION)
-      .where("ativo", "==", true)
-      .orderBy("ordem", "asc")
-      .get();
-    const banners = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+    const snapshot = await db.collection(COLLECTION).get();
+    const banners = snapshot.docs
+      .map((doc) => ({ id: doc.id, ...doc.data() }))
+      .filter((b) => b.ativo !== false)
+      .sort((a, b) => (a.ordem ?? 0) - (b.ordem ?? 0));
     res.json(banners);
   } catch (error) {
     console.error("Erro ao listar banners ativos:", error);

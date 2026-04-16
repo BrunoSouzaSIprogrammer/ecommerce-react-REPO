@@ -4,6 +4,7 @@ import { CartProvider } from "./context/CartContext";
 import ProtectedRoute from "./components/ProtectedRoute";
 import Home from "./pages/Home";
 import Catalogo from "./pages/Catalogo";
+import Busca from "./pages/Busca";
 import Produto from "./pages/Produto";
 import Cart from "./pages/Cart";
 import Checkout from "./pages/Checkout";
@@ -42,6 +43,15 @@ function App() {
               element={
                 <ProtectedRoute>
                   <Home />
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/busca"
+              element={
+                <ProtectedRoute>
+                  <Busca />
                 </ProtectedRoute>
               }
             />

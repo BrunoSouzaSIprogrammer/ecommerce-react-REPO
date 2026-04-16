@@ -1,90 +1,107 @@
+/* ============================================
+   MAZZA — Admin / Cupons (theme-aware)
+   ============================================ */
 .cupons-manager {
   padding: 8px 4px 24px;
+  color: var(--text);
 }
 
 .cupons-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 16px;
+  margin-bottom: 20px;
+  gap: 12px;
+  flex-wrap: wrap;
 }
 
 .cupons-header h3 {
   margin: 0;
   font-size: 1.25rem;
+  color: var(--text);
 }
 
 .cupons-info,
 .cupons-vazio,
 .cupons-erro {
-  padding: 16px;
-  border-radius: 8px;
-  background: var(--bg-secondary, #f5f5f5);
+  padding: 20px;
+  border-radius: 12px;
+  background: var(--card);
+  border: 1px solid var(--border);
   text-align: center;
-  color: var(--text-primary, #111);
+  color: var(--text-muted);
 }
 
 .cupons-erro {
-  color: var(--danger, #e53935);
-  border: 1px solid var(--danger, #e53935);
-  background: rgba(229, 57, 53, 0.06);
+  color: #e53935;
+  border-color: rgba(229, 57, 53, 0.4);
+  background: rgba(229, 57, 53, 0.08);
 }
 
 .cupons-table-wrap {
   overflow-x: auto;
-  background: var(--bg-secondary, #fff);
-  border-radius: 10px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
 }
 
 .cupons-table {
   width: 100%;
   border-collapse: collapse;
   font-size: 0.9rem;
+  color: var(--text);
 }
 
 .cupons-table thead {
-  background: var(--bg-primary, #fafafa);
+  background: rgba(var(--primary-rgb), 0.06);
 }
 
 .cupons-table th,
 .cupons-table td {
-  padding: 10px 12px;
+  padding: 12px 14px;
   text-align: left;
-  border-bottom: 1px solid var(--border, #eee);
+  border-bottom: 1px solid var(--border);
   vertical-align: middle;
 }
 
+.cupons-table tbody tr:hover {
+  background: var(--primary-soft);
+}
+
+.cupons-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
 .cupons-table th {
-  font-weight: 600;
-  color: var(--text-secondary, #555);
-  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  font-size: 0.75rem;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
+  letter-spacing: 0.8px;
 }
 
 .cupom-desc {
   font-size: 0.75rem;
-  color: var(--text-secondary, #777);
+  color: var(--text-muted);
   margin-top: 2px;
 }
 
 .status-badge {
   display: inline-block;
-  padding: 2px 8px;
+  padding: 3px 10px;
   border-radius: 12px;
   font-size: 0.75rem;
   font-weight: 600;
 }
 
 .status-badge.ativo {
-  background: #e8f5e9;
-  color: #2e7d32;
+  background: var(--primary-soft);
+  color: var(--primary);
 }
 
 .status-badge.inativo {
-  background: #eee;
-  color: #666;
+  background: var(--border);
+  color: var(--text-muted);
 }
 
 .acoes-col {
@@ -94,133 +111,161 @@
 }
 
 .btn-mini {
-  padding: 4px 10px;
-  border-radius: 6px;
-  border: 1px solid var(--border, #ddd);
-  background: var(--bg-primary, #fff);
+  padding: 6px 12px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: var(--input);
   cursor: pointer;
   font-size: 0.8rem;
-  color: var(--text-primary, #111);
+  color: var(--text);
+  transition: all 0.2s ease;
 }
 
 .btn-mini:hover {
-  background: var(--bg-secondary, #f5f5f5);
+  border-color: var(--primary);
+  color: var(--primary);
 }
 
 .btn-mini.btn-danger {
-  color: var(--danger, #e53935);
-  border-color: var(--danger, #e53935);
+  color: #e53935;
+  border-color: rgba(229, 57, 53, 0.4);
 }
 
 .btn-mini.btn-danger:hover {
-  background: rgba(229, 57, 53, 0.08);
+  background: rgba(229, 57, 53, 0.1);
 }
 
 /* Modal */
 .cupom-modal-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.5);
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 1000;
+  z-index: 1200;
   padding: 16px;
 }
 
 .cupom-modal {
-  background: var(--bg-secondary, #fff);
-  color: var(--text-primary, #111);
-  border-radius: 12px;
-  padding: 24px;
+  background: var(--card);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 28px;
   width: 100%;
   max-width: 640px;
   max-height: 90vh;
   overflow-y: auto;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.5);
 }
 
 .cupom-modal h3 {
-  margin: 0 0 16px;
+  margin: 0 0 20px;
+  color: var(--primary);
 }
 
 .cupom-modal .form-field {
   display: flex;
   flex-direction: column;
-  gap: 4px;
-  margin-bottom: 12px;
+  gap: 6px;
+  margin-bottom: 14px;
   flex: 1;
 }
 
 .cupom-modal .form-field label {
   font-size: 0.85rem;
-  color: var(--text-secondary, #555);
-  font-weight: 500;
+  color: var(--text-muted);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
 .cupom-modal .form-field input,
 .cupom-modal .form-field select {
-  padding: 8px 10px;
-  border: 1px solid var(--border, #ddd);
-  border-radius: 6px;
-  background: var(--bg-primary, #fff);
-  color: var(--text-primary, #111);
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--input);
+  color: var(--text);
   font-size: 0.9rem;
+  transition: border-color 0.2s ease;
+}
+
+.cupom-modal .form-field input:focus,
+.cupom-modal .form-field select:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px var(--primary-soft);
 }
 
 .cupom-modal .form-row {
   display: flex;
-  gap: 12px;
+  gap: 14px;
 }
 
 .cupom-modal .form-check label {
   flex-direction: row;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
   cursor: pointer;
+}
+
+.cupom-modal .form-check input[type="checkbox"] {
+  accent-color: var(--primary);
 }
 
 .modal-acoes {
   display: flex;
   justify-content: flex-end;
-  gap: 8px;
-  margin-top: 16px;
+  gap: 10px;
+  margin-top: 20px;
+  padding-top: 16px;
+  border-top: 1px solid var(--border);
 }
 
 .modal-acoes .btn-primary,
-.modal-acoes .btn-secondary {
-  padding: 8px 16px;
-  border-radius: 8px;
+.modal-acoes .btn-secondary,
+.cupons-header .btn-primary {
+  padding: 10px 18px;
+  border-radius: 10px;
   border: none;
   font-weight: 600;
   cursor: pointer;
   font-size: 0.9rem;
+  transition: all 0.2s ease;
 }
 
-.modal-acoes .btn-primary {
-  background: var(--accent, #1976d2);
+.modal-acoes .btn-primary,
+.cupons-header .btn-primary {
+  background: var(--primary);
   color: #fff;
 }
 
+.modal-acoes .btn-primary:hover,
+.cupons-header .btn-primary:hover {
+  background: var(--primary-hover);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px var(--primary-soft);
+}
+
 .modal-acoes .btn-primary:disabled {
-  opacity: 0.6;
+  opacity: 0.5;
   cursor: not-allowed;
+  transform: none;
 }
 
 .modal-acoes .btn-secondary {
   background: transparent;
-  border: 1px solid var(--border, #ddd);
-  color: var(--text-primary, #111);
+  border: 1px solid var(--border);
+  color: var(--text);
 }
 
-.cupons-header .btn-primary {
-  padding: 8px 16px;
-  border-radius: 8px;
-  border: none;
-  background: var(--accent, #1976d2);
-  color: #fff;
-  font-weight: 600;
-  cursor: pointer;
+.modal-acoes .btn-secondary:hover {
+  border-color: var(--primary);
+  color: var(--primary);
 }
 
 @media (max-width: 600px) {
@@ -233,6 +278,6 @@
   }
   .cupons-table th,
   .cupons-table td {
-    padding: 6px 8px;
+    padding: 8px 10px;
   }
 }

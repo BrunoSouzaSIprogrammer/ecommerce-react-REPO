@@ -27,6 +27,15 @@ export default function Navbar({ onThemeToggle, theme }) {
         </div>
 
         <div className="navbar-actions">
+          <button
+            className="nav-search-btn"
+            onClick={() => navigate('/busca')}
+            title="Pesquisar produtos"
+          >
+            <span className="btn-icon">🔍</span>
+            <span className="nav-search-label">Buscar</span>
+          </button>
+
           {isAdmin && (
             <button className="nav-admin-btn" onClick={() => navigate('/admin')}>
               <span className="btn-icon">📊</span>

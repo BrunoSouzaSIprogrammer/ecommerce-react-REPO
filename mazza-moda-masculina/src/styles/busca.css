@@ -1,0 +1,339 @@
+/* ============================================
+   MAZZA — Página de Busca
+   ============================================ */
+
+.busca-page {
+  min-height: 100vh;
+  background: var(--bg);
+  color: var(--text);
+}
+
+/* Header */
+.busca-header {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 28px 40px 12px;
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.busca-input-wrapper {
+  flex: 1 1 420px;
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.busca-input-icon {
+  position: absolute;
+  left: 18px;
+  font-size: 18px;
+  opacity: 0.7;
+  pointer-events: none;
+}
+
+.busca-input {
+  width: 100%;
+  padding: 16px 48px 16px 48px;
+  border-radius: 14px;
+  border: 1.5px solid var(--border);
+  background: var(--card);
+  color: var(--text);
+  font-size: 16px;
+  transition: all 0.25s ease;
+}
+
+.busca-input:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 4px var(--primary-soft);
+}
+
+.busca-clear {
+  position: absolute;
+  right: 12px;
+  background: var(--border);
+  border: none;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  font-size: 18px;
+  line-height: 1;
+  cursor: pointer;
+  color: var(--text);
+  transition: all 0.2s;
+}
+
+.busca-clear:hover {
+  background: var(--primary);
+  color: #fff;
+}
+
+.busca-meta {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 14px;
+  color: var(--text-muted);
+}
+
+.busca-select {
+  padding: 10px 14px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: var(--card);
+  color: var(--text);
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.busca-select:focus {
+  outline: none;
+  border-color: var(--primary);
+}
+
+/* Categorias */
+.busca-categorias {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 12px 40px 20px;
+  display: flex;
+  gap: 10px;
+  overflow-x: auto;
+  scrollbar-width: thin;
+}
+
+.busca-categorias::-webkit-scrollbar { height: 6px; }
+.busca-categorias::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+.cat-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 18px;
+  border-radius: 999px;
+  border: 1.5px solid var(--border);
+  background: var(--card);
+  color: var(--text);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.25s ease;
+}
+
+.cat-chip:hover {
+  border-color: var(--primary);
+  transform: translateY(-1px);
+}
+
+.cat-chip.active {
+  background: var(--primary);
+  border-color: var(--primary);
+  color: #fff;
+  box-shadow: 0 4px 14px var(--primary-soft);
+}
+
+.chip-icon { font-size: 16px; }
+
+/* Corpo */
+.busca-body {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 40px 60px;
+  display: grid;
+  grid-template-columns: 260px 1fr;
+  gap: 28px;
+  align-items: start;
+}
+
+/* Sidebar filtros */
+.busca-sidebar {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 20px;
+  position: sticky;
+  top: 100px;
+  max-height: calc(100vh - 120px);
+  overflow-y: auto;
+}
+
+.filter-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--border);
+}
+
+.filter-header h3 {
+  margin: 0;
+  font-size: 16px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--primary);
+}
+
+.filter-clear {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-size: 13px;
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+.filter-clear:hover { color: var(--primary); }
+
+.filter-group {
+  margin-bottom: 18px;
+  padding-bottom: 14px;
+  border-bottom: 1px dashed var(--border);
+}
+
+.filter-group:last-child { border-bottom: none; }
+
+.filter-label {
+  display: block;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--text-muted);
+  margin-bottom: 10px;
+}
+
+.filter-input {
+  width: 100%;
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: var(--input);
+  color: var(--text);
+  font-size: 14px;
+}
+
+.filter-input:focus {
+  outline: none;
+  border-color: var(--primary);
+}
+
+.filter-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.filter-chip {
+  padding: 6px 12px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: var(--input);
+  color: var(--text);
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.filter-chip:hover {
+  border-color: var(--primary);
+}
+
+.filter-chip.on {
+  background: var(--primary);
+  border-color: var(--primary);
+  color: #fff;
+}
+
+.filter-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.filter-check {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  color: var(--text);
+  cursor: pointer;
+}
+
+.filter-check input[type="checkbox"] {
+  accent-color: var(--primary);
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+}
+
+/* Resultados */
+.busca-resultados {
+  min-height: 400px;
+}
+
+.busca-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 20px;
+}
+
+.busca-vazio,
+.busca-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 80px 20px;
+  color: var(--text-muted);
+  text-align: center;
+}
+
+.vazio-icon { font-size: 56px; margin-bottom: 12px; }
+
+.vazio-btn {
+  margin-top: 16px;
+  padding: 10px 24px;
+  border-radius: 10px;
+  background: var(--primary);
+  color: #fff;
+  border: none;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.busca-spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid var(--border);
+  border-top-color: var(--primary);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  margin-bottom: 12px;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Responsivo */
+@media (max-width: 960px) {
+  .busca-body {
+    grid-template-columns: 1fr;
+    padding: 0 20px 40px;
+  }
+  .busca-sidebar {
+    position: static;
+    max-height: none;
+  }
+  .busca-header {
+    padding: 20px 20px 10px;
+  }
+  .busca-categorias {
+    padding: 10px 20px 16px;
+  }
+}

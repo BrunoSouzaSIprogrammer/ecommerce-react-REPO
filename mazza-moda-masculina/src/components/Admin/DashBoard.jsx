@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { getProdutosAdmin, getPedidos, getFinanceiro } from "../../services/api";
+import { getProdutosAdmin, getPedidos } from "../../services/api";
 import { useAuth } from "../../context/AuthContext";
 import "../../styles/admin.css";
 
@@ -17,6 +17,7 @@ export default function Dashboard() {
 
   useEffect(() => {
     loadStats();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   async function loadStats() {

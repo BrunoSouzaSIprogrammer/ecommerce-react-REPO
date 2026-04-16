@@ -28,9 +28,11 @@ export default function CartSidebar({ open, onClose }) {
             top: 0,
             left: 0,
             width: "100%",
-            height: "100%",
-            background: "rgba(0,0,0,0.4)",
-            zIndex: 998,
+            height: "100vh",
+            background: "rgba(0,0,0,0.45)",
+            backdropFilter: "blur(2px)",
+            WebkitBackdropFilter: "blur(2px)",
+            zIndex: 1099,
           }}
         />
       )}
@@ -40,19 +42,21 @@ export default function CartSidebar({ open, onClose }) {
         style={{
           position: "fixed",
           top: 0,
-          right: open ? "0" : "-400px",
-          width: "350px",
+          right: open ? "0" : "-420px",
+          width: "380px",
           maxWidth: "100%",
-          height: "100%",
+          height: "100vh",
           background: "var(--card)",
           color: "var(--text)",
           borderLeft: "1px solid var(--border)",
           padding: "20px",
-          transition: "0.3s",
-          zIndex: 999,
+          boxSizing: "border-box",
+          transition: "right 0.3s ease",
+          zIndex: 1100,
           display: "flex",
           flexDirection: "column",
           gap: "12px",
+          boxShadow: open ? "-12px 0 40px rgba(0,0,0,0.35)" : "none",
         }}
       >
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
@@ -143,8 +147,9 @@ export default function CartSidebar({ open, onClose }) {
             display: "flex",
             justifyContent: "space-between",
             fontSize: 14,
-            paddingTop: 8,
+            paddingTop: 12,
             borderTop: "1px solid var(--border)",
+            flexShrink: 0,
           }}
         >
           <span>Subtotal</span>
@@ -155,14 +160,17 @@ export default function CartSidebar({ open, onClose }) {
           onClick={handleVerCarrinho}
           disabled={cart.length === 0}
           style={{
-            padding: 12,
-            borderRadius: 8,
+            padding: 14,
+            borderRadius: 10,
             border: "none",
             background: "var(--primary)",
-            color: "#000",
+            color: "#fff",
             fontWeight: 700,
+            fontSize: 15,
+            letterSpacing: 0.5,
             cursor: cart.length === 0 ? "not-allowed" : "pointer",
             opacity: cart.length === 0 ? 0.5 : 1,
+            flexShrink: 0,
           }}
         >
           Ver carrinho e finalizar
