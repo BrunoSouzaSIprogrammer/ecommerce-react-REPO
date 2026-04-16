@@ -1,6 +1,7 @@
 require("dotenv").config();
 const db = require("../config/firebase");
 const frenet = require("../services/frenet");
+const email = require("../services/email");
 // Pagamento com cartão: migração para Mercado Pago planejada para a Fase 2.
 // Até lá, `processarPagamentoCartao` opera em modo dev (aprovação automática).
 
@@ -170,6 +171,15 @@ exports.criarPedido = async (req, res) => {
     }
 
     res.json(resposta);
+
+    // Email de confirmação (fire-and-forget)
+    email.emailPedidoCriado(req.user.email, {
+      id: docRef.id,
+      itens,
+      total,
+      metodoPagamento,
+      pixCode: novoPedido.pixCode || null,
+    }).catch(() => {});
   } catch (error) {
     console.error("ERRO CRIAR PEDIDO:", error.message);
     res.status(500).json({ error: "Erro ao criar pedido: " + error.message });
@@ -295,6 +305,13 @@ exports.atualizarStatusPedido = async (req, res) => {
     await ref.update(updates);
 
     res.json({ message: "Status atualizado com sucesso", status });
+
+    // Email de mudança de status (fire-and-forget)
+    if (pedido.userEmail) {
+      const snap2 = await ref.get();
+      const pedidoAtualizado = { id: pedidoId, ...snap2.data() };
+      email.emailStatusAtualizado(pedido.userEmail, pedidoAtualizado).catch(() => {});
+    }
   } catch (error) {
     console.error("ERRO ATUALIZAR STATUS:", error.message);
     res.status(500).json({ error: "Erro ao atualizar status" });

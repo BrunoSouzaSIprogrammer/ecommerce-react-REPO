@@ -1,5 +1,6 @@
 const db = require("../config/firebase");
 const mp = require("../services/mercadopago");
+const email = require("../services/email");
 
 // ==========================================
 // POST /webhooks/mercadopago
@@ -87,6 +88,20 @@ exports.receber = async (req, res) => {
           usos: admin.firestore.FieldValue.increment(1),
           atualizadoEm: new Date().toISOString(),
         });
+    }
+
+    // Dispara email de confirmação de pagamento — apenas na primeira transição "pago".
+    if (
+      statusPagamento === "pago" &&
+      pedidoAtual?.statusPagamento !== "pago" &&
+      pedidoAtual?.userEmail
+    ) {
+      email
+        .emailPagamentoConfirmado(pedidoAtual.userEmail, {
+          id: pedidoId,
+          total: pedidoAtual.total,
+        })
+        .catch(() => {});
     }
   } catch (err) {
     console.error("Erro processando webhook MP:", err);
