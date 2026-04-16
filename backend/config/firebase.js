@@ -13,7 +13,13 @@ const admin = require("firebase-admin");
 function loadServiceAccount() {
   if (process.env.FIREBASE_SERVICE_ACCOUNT_JSON) {
     try {
-      return JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT_JSON);
+      // Alguns hosts (Render) convertem \n em quebras reais dentro da env var,
+      // o que quebra o JSON. Revertemos antes do parse.
+      const raw = process.env.FIREBASE_SERVICE_ACCOUNT_JSON.replace(
+        /\n/g,
+        "\\n",
+      );
+      return JSON.parse(raw);
     } catch (err) {
       throw new Error(
         "FIREBASE_SERVICE_ACCOUNT_JSON inválido (não é JSON): " + err.message,
