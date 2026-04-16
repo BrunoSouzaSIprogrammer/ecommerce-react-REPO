@@ -537,4 +537,228 @@
     flex-direction: column;
     text-align: center;
   }
+
+  .banner-section {
+    min-height: 200px;
+    padding: 40px 20px;
+  }
+
+  .banner-title {
+    font-size: 28px;
+  }
+
+  .categories-strip {
+    padding: 16px 20px;
+  }
+
+  .category-chip {
+    min-width: 90px;
+    padding: 12px 14px;
+  }
+
+  .featured-scroll {
+    padding: 0 20px;
+  }
+
+  .featured-card {
+    min-width: 240px;
+  }
+
+  .scroll-arrows {
+    display: none;
+  }
+}
+
+/* ============================================
+   Banner Dinâmico
+   ============================================ */
+.banner-section {
+  position: relative;
+  min-height: 280px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  cursor: pointer;
+  overflow: hidden;
+  transition: all 0.5s ease;
+}
+
+.banner-overlay {
+  position: relative;
+  z-index: 2;
+  padding: 40px 20px;
+}
+
+.banner-title {
+  font-size: 42px;
+  font-weight: 800;
+  letter-spacing: 3px;
+  margin: 0 0 10px 0;
+  text-shadow: 0 2px 20px rgba(0, 0, 0, 0.4);
+}
+
+.banner-subtitle {
+  font-size: 18px;
+  margin: 0;
+  opacity: 0.9;
+  letter-spacing: 1px;
+  text-shadow: 0 1px 10px rgba(0, 0, 0, 0.3);
+}
+
+.banner-dots {
+  position: absolute;
+  bottom: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 8px;
+  z-index: 3;
+}
+
+.banner-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, 0.6);
+  background: transparent;
+  cursor: pointer;
+  transition: all 0.3s;
+  padding: 0;
+}
+
+.banner-dot.active {
+  background: #fff;
+  border-color: #fff;
+  transform: scale(1.2);
+}
+
+/* ============================================
+   Categorias Strip (ícones horizontais)
+   ============================================ */
+.categories-strip {
+  padding: 20px 40px;
+  overflow: hidden;
+}
+
+.categories-scroll {
+  display: flex;
+  gap: 12px;
+  overflow-x: auto;
+  padding-bottom: 8px;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.categories-scroll::-webkit-scrollbar {
+  display: none;
+}
+
+.category-chip {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  min-width: 100px;
+  padding: 14px 18px;
+  border-radius: 14px;
+  border: 1.5px solid transparent;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  flex-shrink: 0;
+  background: transparent;
+}
+
+.home-page.dark .category-chip {
+  background: #1a1a1a;
+  border-color: #2a2a2a;
+  color: #ccc;
+}
+
+.home-page.light .category-chip {
+  background: #fff;
+  border-color: #e8e8e8;
+  color: #444;
+}
+
+.category-chip:hover,
+.category-chip.active {
+  border-color: var(--mazza-primary);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(201, 162, 39, 0.15);
+}
+
+.category-chip.active {
+  background: rgba(201, 162, 39, 0.1);
+}
+
+.chip-icon {
+  font-size: 28px;
+}
+
+.chip-label {
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  white-space: nowrap;
+}
+
+/* ============================================
+   Destaques — Rolagem Horizontal
+   ============================================ */
+.featured-scroll {
+  display: flex;
+  gap: 20px;
+  overflow-x: auto;
+  padding: 4px 40px 16px;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.featured-scroll::-webkit-scrollbar {
+  display: none;
+}
+
+.featured-card {
+  min-width: 280px;
+  max-width: 300px;
+  flex-shrink: 0;
+  scroll-snap-align: start;
+}
+
+.scroll-arrows {
+  display: flex;
+  gap: 8px;
+}
+
+.scroll-arrow {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 1.5px solid #333;
+  background: transparent;
+  font-size: 20px;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+}
+
+.home-page.dark .scroll-arrow {
+  color: #ccc;
+  border-color: #333;
+}
+
+.home-page.light .scroll-arrow {
+  color: #555;
+  border-color: #ddd;
+}
+
+.scroll-arrow:hover {
+  border-color: var(--mazza-primary);
+  color: var(--mazza-primary);
 }

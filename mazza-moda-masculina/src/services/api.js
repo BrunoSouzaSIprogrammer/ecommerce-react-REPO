@@ -530,3 +530,60 @@ export const deletarCupom = async (codigo, token) => {
   }
   return res.json();
 };
+
+// ================= BANNERS =================
+export const listarBannersAtivos = async () => {
+  const res = await fetch(`${API_URL}/banners`);
+  return res.json();
+};
+
+export const listarBannersAdmin = async (token) => {
+  const res = await fetch(`${API_URL}/banners/admin`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  return res.json();
+};
+
+export const criarBanner = async (banner, token) => {
+  const res = await fetch(`${API_URL}/banners`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify(banner),
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.erro || "Erro ao criar banner");
+  }
+  return res.json();
+};
+
+export const atualizarBanner = async (id, patch, token) => {
+  const res = await fetch(`${API_URL}/banners/${id}`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify(patch),
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.erro || "Erro ao atualizar banner");
+  }
+  return res.json();
+};
+
+export const deletarBanner = async (id, token) => {
+  const res = await fetch(`${API_URL}/banners/${id}`, {
+    method: "DELETE",
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.erro || "Erro ao deletar banner");
+  }
+  return res.json();
+};

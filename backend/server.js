@@ -13,6 +13,7 @@ const webhooksRoutes = require("./routes/webhooks");
 const oauthMpRoutes = require("./routes/oauthMp");
 const favoritosRoutes = require("./routes/favoritos");
 const cuponsRoutes = require("./routes/cupons");
+const bannersRoutes = require("./routes/banners");
 
 const app = express();
 
@@ -24,6 +25,7 @@ app.use("/", authRoutes);
 app.use("/categorias", categoriasRoutes);
 app.use("/produtos", produtosRoutes);
 app.use("/frete", freteRoutes);
+app.use("/banners", bannersRoutes);
 
 // Webhooks (públicos — chamados por serviços externos)
 app.use("/webhooks", webhooksRoutes);

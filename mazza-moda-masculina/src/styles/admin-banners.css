@@ -1,0 +1,173 @@
+.banner-manager {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.banners-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+  gap: 20px;
+}
+
+.banner-card {
+  background: #141414;
+  border: 1px solid #2a2a2a;
+  border-radius: 14px;
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.admin-page.light .banner-card {
+  background: #fff;
+  border-color: #e0e0e0;
+}
+
+.banner-card.inativo {
+  opacity: 0.5;
+}
+
+.banner-preview {
+  padding: 32px 24px;
+  min-height: 120px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  border-radius: 0;
+}
+
+.banner-preview h4 {
+  font-size: 20px;
+  font-weight: 700;
+  margin: 0 0 6px 0;
+  letter-spacing: 1px;
+}
+
+.banner-preview p {
+  font-size: 14px;
+  margin: 0;
+  opacity: 0.85;
+}
+
+.banner-card-footer {
+  padding: 14px 18px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-top: 1px solid #2a2a2a;
+}
+
+.admin-page.light .banner-card-footer {
+  border-top-color: #e0e0e0;
+}
+
+.banner-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: #888;
+}
+
+.status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #555;
+}
+
+.status-dot.ativo {
+  background: #28a745;
+}
+
+.banner-link-info {
+  font-size: 12px;
+  color: #666;
+  max-width: 140px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.toggle-btn {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 1px solid #444;
+  background: transparent;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.toggle-btn.on {
+  color: #28a745;
+  border-color: rgba(40, 167, 69, 0.4);
+}
+
+.toggle-btn.off {
+  color: #666;
+}
+
+.toggle-btn:hover {
+  transform: scale(1.15);
+}
+
+/* Color picker row */
+.color-picker-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.color-picker-row input[type="color"] {
+  width: 40px;
+  height: 36px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  padding: 0;
+  background: none;
+}
+
+.color-text {
+  flex: 1;
+  padding: 10px 12px;
+  background: #1a1a1a;
+  border: 1px solid #333;
+  border-radius: 8px;
+  color: #fff;
+  font-size: 13px;
+  font-family: monospace;
+}
+
+.admin-page.light .color-text {
+  background: #f8f8f8;
+  border-color: #ddd;
+  color: #111;
+}
+
+/* Preview in form */
+.banner-form-preview {
+  margin-top: 8px;
+}
+
+.preview-label {
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: #666;
+  margin-bottom: 8px;
+}
+
+.banner-form-preview .banner-preview {
+  border-radius: 10px;
+}
+
+@media (max-width: 768px) {
+  .banners-grid {
+    grid-template-columns: 1fr;
+  }
+}
