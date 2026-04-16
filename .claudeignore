@@ -1,0 +1,91 @@
+# ==========================================
+# .claudeignore — Mazza Moda Masculina
+# Arquivos e pastas que o Claude NÃO deve ler/modificar
+# ==========================================
+
+# --- Dependências (geradas, enormes, não editar) ---
+node_modules/
+**/node_modules/
+.pnp
+.pnp.js
+
+# --- Build outputs ---
+build/
+dist/
+out/
+.next/
+**/build/
+**/dist/
+
+# --- Lock files (gerados pelo npm/yarn, não editar manualmente) ---
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+**/package-lock.json
+**/yarn.lock
+
+# --- Ambiente e segredos ---
+.env
+.env.*
+!.env.example
+**/.env
+**/.env.local
+**/.env.production
+
+# --- Credenciais Firebase / Service accounts ---
+**/firebase-adminsdk-*.json
+**/*-firebase-adminsdk-*.json
+**/serviceAccountKey.json
+backend/config/mazza-store-firebase-adminsdk-*.json
+backend/config/certificado_pix.pfx
+**/*.pfx
+**/*.pem
+**/*.key
+
+# --- Uploads de usuários (binários, gerados em runtime) ---
+backend/uploads/
+**/uploads/
+
+# --- Logs ---
+*.log
+logs/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# --- Cache ---
+.cache/
+.parcel-cache/
+.eslintcache
+.stylelintcache
+.vite/
+
+# --- Coverage e testes ---
+coverage/
+.nyc_output/
+
+# --- IDE / Editor ---
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+
+# --- Binários / assets grandes ---
+*.zip
+*.tar.gz
+*.rar
+*.7z
+*.mp4
+*.mov
+*.avi
+
+# --- Variações de design/logo (não editar via Claude) ---
+logo_variations/
+
+# --- Git interno ---
+.git/
+
+# --- Claude interno ---
+.claude/
