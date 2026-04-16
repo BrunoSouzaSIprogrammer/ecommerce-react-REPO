@@ -14,14 +14,27 @@ import "../../styles/products-manager.css";
 const IMG_W = 450;
 const IMG_H = 600;
 
-function validarDimensoesImagem(file) {
-  return new Promise((resolve) => {
+function redimensionarImagem(file) {
+  return new Promise((resolve, reject) => {
     const img = new Image();
     img.onload = () => {
       URL.revokeObjectURL(img.src);
-      resolve(img.width === IMG_W && img.height === IMG_H);
+      const canvas = document.createElement("canvas");
+      canvas.width = IMG_W;
+      canvas.height = IMG_H;
+      const ctx = canvas.getContext("2d");
+      ctx.drawImage(img, 0, 0, IMG_W, IMG_H);
+      canvas.toBlob(
+        (blob) => {
+          if (!blob) return reject(new Error("Erro ao processar imagem"));
+          const resized = new File([blob], file.name, { type: file.type });
+          resolve(resized);
+        },
+        file.type,
+        0.92
+      );
     };
-    img.onerror = () => resolve(false);
+    img.onerror = () => reject(new Error(`Não foi possível carregar "${file.name}"`));
     img.src = URL.createObjectURL(file);
   });
 }
@@ -106,15 +119,13 @@ export default function ProductsManager() {
     const files = Array.from(e.target.files);
     setImgError("");
 
-    for (const file of files) {
-      const ok = await validarDimensoesImagem(file);
-      if (!ok) {
-        setImgError(`"${file.name}" não tem ${IMG_W}x${IMG_H}px. Ajuste antes de enviar.`);
-        e.target.value = "";
-        return;
-      }
+    try {
+      const redimensionadas = await Promise.all(files.map(redimensionarImagem));
+      setImagens(redimensionadas);
+    } catch (err) {
+      setImgError(err.message || "Erro ao processar imagem.");
+      e.target.value = "";
     }
-    setImagens(files);
   }
 
   async function handleSubmit(e) {
@@ -468,7 +479,7 @@ export default function ProductsManager() {
 
               {!editingProduct && (
                 <div className="form-group">
-                  <label>Imagens ({IMG_W}x{IMG_H}px obrigatório)</label>
+                  <label>Imagens (redimensionado automaticamente para {IMG_W}x{IMG_H}px)</label>
                   <input
                     ref={fileRef}
                     type="file"

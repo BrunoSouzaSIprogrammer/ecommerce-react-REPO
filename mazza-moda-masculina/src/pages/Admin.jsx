@@ -9,6 +9,7 @@ import CuponsManager from "../components/Admin/CuponsManager";
 import FavoritosRanking from "../components/Admin/FavoritosRanking";
 import UsersManager from "../components/Admin/UsersManager";
 import BannerManager from "../components/Admin/BannerManager";
+import Financeiro from "../components/Admin/Financeiro";
 import "../styles/admin.css";
 
 export default function Admin() {
@@ -139,13 +140,7 @@ export default function Admin() {
           {activeTab === "favoritos" && <FavoritosRanking />}
           {activeTab === "banners" && <BannerManager />}
           {activeTab === "usuarios" && <UsersManager />}
-          {activeTab === "financeiro" && (
-            <div className="coming-soon">
-              <span className="icon">🚧</span>
-              <h3>Em desenvolvimento</h3>
-              <p>Painel financeiro estará disponível em breve</p>
-            </div>
-          )}
+          {activeTab === "financeiro" && <Financeiro />}
         </div>
       </main>
     </div>

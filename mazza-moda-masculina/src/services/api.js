@@ -348,8 +348,8 @@ export const getComissaoConfig = async (token) => {
 };
 
 // ================= FINANCEIRO =================
-export const getFinanceiro = async (token) => {
-  const res = await fetch(`${API_URL}/financeiro`, {
+export const getFinanceiro = async (token, periodo = "30d") => {
+  const res = await fetch(`${API_URL}/financeiro?periodo=${encodeURIComponent(periodo)}`, {
     headers: { Authorization: `Bearer ${token}` }
   });
   return res.json();
