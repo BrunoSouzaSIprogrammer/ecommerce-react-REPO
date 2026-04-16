@@ -49,6 +49,44 @@
   font-weight: 700;
 }
 
+.pedidos-grupo {
+  margin-bottom: 28px;
+}
+
+.pedidos-grupo-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 12px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--border);
+}
+
+.pedidos-grupo-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.pedidos-grupo-titulo {
+  margin: 0;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--text);
+  letter-spacing: 0.3px;
+}
+
+.pedidos-grupo-qtd {
+  margin-left: auto;
+  background: var(--input);
+  color: var(--text-muted);
+  padding: 2px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+}
+
 .pedidos-lista {
   list-style: none;
   padding: 0;

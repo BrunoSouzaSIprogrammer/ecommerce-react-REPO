@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import useTheme from "../hooks/useTheme";
@@ -13,6 +13,15 @@ function formatBRL(n) {
     currency: "BRL",
   });
 }
+
+// Ordem de exibição dos grupos e labels "amigáveis" para o cliente.
+const GRUPOS = [
+  { status: "aguardando_pagamento", titulo: "Aguardando pagamento" },
+  { status: "em_producao", titulo: "Em preparação" },
+  { status: "enviado", titulo: "Enviados" },
+  { status: "recebido", titulo: "Recebidos" },
+  { status: "cancelado", titulo: "Cancelados" },
+];
 
 export default function MeusPedidos() {
   const { user } = useAuth();
@@ -38,6 +47,13 @@ export default function MeusPedidos() {
     })();
   }, [user?.token]);
 
+  const grupos = useMemo(() => {
+    return GRUPOS.map((g) => ({
+      ...g,
+      pedidos: pedidos.filter((p) => p.status === g.status),
+    })).filter((g) => g.pedidos.length > 0);
+  }, [pedidos]);
+
   return (
     <div className="meus-pedidos-page">
       <Navbar
@@ -62,58 +78,73 @@ export default function MeusPedidos() {
           </div>
         )}
 
-        <ul className="pedidos-lista">
-          {pedidos.map((p) => {
-            const totalItens = (p.itens || []).reduce(
-              (acc, it) => acc + (it.quantidade || it.quantity || 1),
-              0,
-            );
-            const precisaAvaliar =
-              p.status === "recebido" && !p.avaliacao;
-            return (
-              <li
-                key={p.id}
-                className="pedido-card"
-                onClick={() => navigate(`/conta/pedidos/${p.id}`)}
-              >
-                <div className="pedido-topo">
-                  <span className="pedido-id">#{p.id.slice(0, 8)}</span>
-                  <span
-                    className="pedido-status"
-                    style={{
-                      background: `${corStatus(p.status)}22`,
-                      color: corStatus(p.status),
-                      borderColor: `${corStatus(p.status)}66`,
-                    }}
+        {!loading && grupos.map((grupo) => (
+          <section key={grupo.status} className="pedidos-grupo">
+            <div className="pedidos-grupo-header">
+              <span
+                className="pedidos-grupo-dot"
+                style={{ background: corStatus(grupo.status) }}
+              />
+              <h2 className="pedidos-grupo-titulo">{grupo.titulo}</h2>
+              <span className="pedidos-grupo-qtd">
+                {grupo.pedidos.length}
+              </span>
+            </div>
+
+            <ul className="pedidos-lista">
+              {grupo.pedidos.map((p) => {
+                const totalItens = (p.itens || []).reduce(
+                  (acc, it) => acc + (it.quantidade || it.quantity || 1),
+                  0,
+                );
+                const precisaAvaliar =
+                  p.status === "recebido" && !p.avaliacao;
+                return (
+                  <li
+                    key={p.id}
+                    className="pedido-card"
+                    onClick={() => navigate(`/conta/pedidos/${p.id}`)}
                   >
-                    {labelStatus(p.status)}
-                  </span>
-                </div>
+                    <div className="pedido-topo">
+                      <span className="pedido-id">#{p.id.slice(0, 8)}</span>
+                      <span
+                        className="pedido-status"
+                        style={{
+                          background: `${corStatus(p.status)}22`,
+                          color: corStatus(p.status),
+                          borderColor: `${corStatus(p.status)}66`,
+                        }}
+                      >
+                        {labelStatus(p.status)}
+                      </span>
+                    </div>
 
-                <div className="pedido-meio">
-                  <div>
-                    <span className="pedido-label">Itens</span>
-                    <strong>{totalItens}</strong>
-                  </div>
-                  <div>
-                    <span className="pedido-label">Total</span>
-                    <strong>{formatBRL(p.total)}</strong>
-                  </div>
-                  <div>
-                    <span className="pedido-label">Criado</span>
-                    <strong>{formatarData(p.criadoEm)}</strong>
-                  </div>
-                </div>
+                    <div className="pedido-meio">
+                      <div>
+                        <span className="pedido-label">Itens</span>
+                        <strong>{totalItens}</strong>
+                      </div>
+                      <div>
+                        <span className="pedido-label">Total</span>
+                        <strong>{formatBRL(p.total)}</strong>
+                      </div>
+                      <div>
+                        <span className="pedido-label">Criado</span>
+                        <strong>{formatarData(p.criadoEm)}</strong>
+                      </div>
+                    </div>
 
-                {precisaAvaliar && (
-                  <div className="pedido-flag">
-                    ⭐ Avalie este pedido
-                  </div>
-                )}
-              </li>
-            );
-          })}
-        </ul>
+                    {precisaAvaliar && (
+                      <div className="pedido-flag">
+                        ⭐ Avalie este pedido
+                      </div>
+                    )}
+                  </li>
+                );
+              })}
+            </ul>
+          </section>
+        ))}
       </div>
     </div>
   );
