@@ -1,0 +1,422 @@
+/* ==========================================
+   Catálogo — layout em duas colunas com
+   sidebar de filtros e grid de produtos.
+   Responsivo: sidebar vira drawer no mobile.
+========================================== */
+
+.catalogo-page {
+  min-height: 100vh;
+  background: var(--bg);
+  color: var(--text);
+}
+
+/* Tabs horizontais das categorias */
+.catalogo-tabs {
+  display: flex;
+  gap: 0.5rem;
+  padding: 1rem 1.5rem;
+  overflow-x: auto;
+  background: var(--card);
+  border-bottom: 1px solid var(--border);
+  scrollbar-width: thin;
+}
+
+.catalogo-tab {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.5rem 1rem;
+  background: transparent;
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  cursor: pointer;
+  white-space: nowrap;
+  font-size: 0.9rem;
+  transition: all 0.2s ease;
+}
+
+.catalogo-tab:hover {
+  border-color: var(--primary);
+}
+
+.catalogo-tab.active {
+  background: var(--primary);
+  color: #0a0a0a;
+  border-color: var(--primary);
+  font-weight: 600;
+}
+
+.tab-icon {
+  font-size: 1.1rem;
+}
+
+/* Layout principal */
+.catalogo-layout {
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  gap: 2rem;
+  padding: 1.5rem;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+/* Toggle mobile dos filtros */
+.filtros-toggle {
+  display: none;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  padding: 0.75rem 1rem;
+  background: var(--primary);
+  color: #0a0a0a;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  margin-bottom: 1rem;
+}
+
+/* Sidebar */
+.catalogo-sidebar {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 1.25rem;
+  height: fit-content;
+  position: sticky;
+  top: 1rem;
+  max-height: calc(100vh - 2rem);
+  overflow-y: auto;
+}
+
+.sidebar-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.sidebar-header h3 {
+  margin: 0;
+  font-size: 1.1rem;
+}
+
+.sidebar-limpar {
+  background: transparent;
+  border: none;
+  color: var(--primary);
+  cursor: pointer;
+  font-size: 0.85rem;
+  text-decoration: underline;
+}
+
+/* Blocos de filtro */
+.filtro-bloco {
+  margin-bottom: 1.25rem;
+}
+
+.filtro-label {
+  margin: 0 0 0.5rem;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  opacity: 0.8;
+}
+
+.filtro-input {
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  background: var(--bg);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  font-size: 0.9rem;
+  box-sizing: border-box;
+}
+
+.filtro-input:focus {
+  outline: none;
+  border-color: var(--primary);
+}
+
+.filtro-range {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.filtro-range .filtro-input {
+  flex: 1;
+  min-width: 0;
+}
+
+/* Chips — para tipo, tamanho, cor, estampa */
+.chip-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+
+.chip {
+  padding: 0.35rem 0.7rem;
+  background: var(--bg);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  cursor: pointer;
+  font-size: 0.8rem;
+  transition: all 0.15s ease;
+}
+
+.chip:hover {
+  border-color: var(--primary);
+}
+
+.chip.active {
+  background: var(--primary);
+  color: #0a0a0a;
+  border-color: var(--primary);
+  font-weight: 600;
+}
+
+.chip-compact {
+  min-width: 2.2rem;
+  text-align: center;
+}
+
+/* Resultados */
+.catalogo-resultados {
+  min-width: 0; /* evita overflow do grid */
+}
+
+.resultados-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.25rem;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.resultados-titulo {
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 1.4rem;
+}
+
+.cat-icon {
+  font-size: 1.6rem;
+}
+
+.resultados-count {
+  font-size: 0.85rem;
+  opacity: 0.7;
+  font-weight: normal;
+  margin-left: 0.5rem;
+}
+
+/* Dropdown de ordenação */
+.ordenar {
+  position: relative;
+}
+
+.ordenar-trigger {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  background: var(--card);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.9rem;
+}
+
+.ordenar-trigger:hover {
+  border-color: var(--primary);
+}
+
+.ordenar-seta {
+  font-size: 0.7rem;
+  opacity: 0.7;
+  transition: transform 0.2s ease;
+}
+
+.ordenar-menu {
+  position: absolute;
+  top: calc(100% + 0.5rem);
+  right: 0;
+  min-width: 200px;
+  margin: 0;
+  padding: 0.35rem;
+  list-style: none;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+  z-index: 20;
+}
+
+.ordenar-item {
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  text-align: left;
+  background: transparent;
+  color: var(--text);
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.9rem;
+}
+
+.ordenar-item:hover {
+  background: var(--bg);
+}
+
+.ordenar-item.active {
+  color: var(--primary);
+  font-weight: 600;
+}
+
+.ordenar-limpar {
+  border-top: 1px solid var(--border);
+  margin-top: 0.2rem;
+  opacity: 0.8;
+}
+
+/* Grid de produtos */
+.resultados-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 1.25rem;
+}
+
+.resultados-item {
+  cursor: pointer;
+}
+
+/* Estados */
+.resultados-loading,
+.resultados-vazio,
+.catalogo-empty {
+  text-align: center;
+  padding: 4rem 1rem;
+  opacity: 0.85;
+}
+
+.loading-spinner {
+  width: 40px;
+  height: 40px;
+  margin: 0 auto 1rem;
+  border: 3px solid var(--border);
+  border-top-color: var(--primary);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.vazio-icon {
+  font-size: 3rem;
+  display: block;
+  margin-bottom: 1rem;
+}
+
+.vazio-limpar {
+  margin-top: 1rem;
+  padding: 0.6rem 1.5rem;
+  background: var(--primary);
+  color: #0a0a0a;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.catalogo-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  justify-content: center;
+  margin-top: 1.5rem;
+}
+
+.catalogo-chip {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.5rem 1rem;
+  background: var(--card);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  cursor: pointer;
+}
+
+.catalogo-chip:hover {
+  border-color: var(--primary);
+}
+
+.chip-icon {
+  font-size: 1.1rem;
+}
+
+/* ========= Mobile ========= */
+@media (max-width: 900px) {
+  .catalogo-layout {
+    grid-template-columns: 1fr;
+    padding: 1rem;
+  }
+
+  .filtros-toggle {
+    display: block;
+  }
+
+  .catalogo-sidebar {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 100;
+    max-height: 100vh;
+    border-radius: 0;
+    overflow-y: auto;
+  }
+
+  .catalogo-sidebar.open {
+    display: block;
+  }
+
+  .resultados-grid {
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 0.8rem;
+  }
+
+  .resultados-header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .ordenar-trigger {
+    width: 100%;
+    justify-content: space-between;
+  }
+}
+
+@media (max-width: 480px) {
+  .resultados-titulo {
+    font-size: 1.15rem;
+  }
+}

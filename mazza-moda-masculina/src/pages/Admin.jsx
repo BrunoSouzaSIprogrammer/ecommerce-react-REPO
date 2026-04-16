@@ -3,7 +3,10 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import useTheme from "../hooks/useTheme";
 import ProductsManager from "../components/Admin/ProductsManager";
+import PedidosManager from "../components/Admin/PedidosManager";
 import Dashboard from "../components/Admin/DashBoard";
+import CuponsManager from "../components/Admin/CuponsManager";
+import FavoritosRanking from "../components/Admin/FavoritosRanking";
 import "../styles/admin.css";
 
 export default function Admin() {
@@ -48,6 +51,20 @@ export default function Admin() {
             <span>Pedidos</span>
           </button>
           <button
+            className={`nav-item ${activeTab === "cupons" ? "active" : ""}`}
+            onClick={() => setActiveTab("cupons")}
+          >
+            <span className="nav-icon">🎟️</span>
+            <span>Cupons</span>
+          </button>
+          <button
+            className={`nav-item ${activeTab === "favoritos" ? "active" : ""}`}
+            onClick={() => setActiveTab("favoritos")}
+          >
+            <span className="nav-icon">♥</span>
+            <span>Favoritos</span>
+          </button>
+          <button
             className={`nav-item ${activeTab === "financeiro" ? "active" : ""}`}
             onClick={() => setActiveTab("financeiro")}
           >
@@ -78,6 +95,8 @@ export default function Admin() {
             {activeTab === "dashboard" && "Visão Geral"}
             {activeTab === "produtos" && "Gerenciar Produtos"}
             {activeTab === "pedidos" && "Pedidos"}
+            {activeTab === "cupons" && "Cupons de desconto"}
+            {activeTab === "favoritos" && "Revisão de favoritos"}
             {activeTab === "financeiro" && "Financeiro"}
           </h2>
           <div className="header-actions">
@@ -97,13 +116,9 @@ export default function Admin() {
         <div className="admin-content">
           {activeTab === "dashboard" && <Dashboard />}
           {activeTab === "produtos" && <ProductsManager />}
-          {activeTab === "pedidos" && (
-            <div className="coming-soon">
-              <span className="icon">🚧</span>
-              <h3>Em desenvolvimento</h3>
-              <p>Gestão de pedidos estará disponível em breve</p>
-            </div>
-          )}
+          {activeTab === "pedidos" && <PedidosManager />}
+          {activeTab === "cupons" && <CuponsManager />}
+          {activeTab === "favoritos" && <FavoritosRanking />}
           {activeTab === "financeiro" && (
             <div className="coming-soon">
               <span className="icon">🚧</span>

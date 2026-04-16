@@ -1,18 +1,20 @@
-import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { useCart } from "../context/CartContext";
-import CheckoutModal from "./CheckoutModal";
+
+function formatBRL(n) {
+  return (Number(n) || 0).toLocaleString("pt-BR", {
+    style: "currency",
+    currency: "BRL",
+  });
+}
 
 export default function CartSidebar({ open, onClose }) {
-  const { cart, total, clearCart, removeFromCart } = useCart();
-  const [checkoutOpen, setCheckoutOpen] = useState(false);
+  const navigate = useNavigate();
+  const { cart, subtotal, removeFromCart, updateQuantity } = useCart();
 
-  function handleFinalizarCompra() {
-    setCheckoutOpen(true);
-  }
-
-  function handleCheckoutClose() {
-    setCheckoutOpen(false);
+  function handleVerCarrinho() {
     onClose();
+    navigate("/carrinho");
   }
 
   return (
@@ -28,7 +30,7 @@ export default function CartSidebar({ open, onClose }) {
             width: "100%",
             height: "100%",
             background: "rgba(0,0,0,0.4)",
-            zIndex: 998
+            zIndex: 998,
           }}
         />
       )}
@@ -40,6 +42,7 @@ export default function CartSidebar({ open, onClose }) {
           top: 0,
           right: open ? "0" : "-400px",
           width: "350px",
+          maxWidth: "100%",
           height: "100%",
           background: "var(--card)",
           color: "var(--text)",
@@ -48,45 +51,135 @@ export default function CartSidebar({ open, onClose }) {
           transition: "0.3s",
           zIndex: 999,
           display: "flex",
-          flexDirection: "column"
+          flexDirection: "column",
+          gap: "12px",
         }}
       >
-        <h2>Carrinho</h2>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+          <h2 style={{ margin: 0 }}>Carrinho</h2>
+          <button
+            onClick={onClose}
+            aria-label="Fechar"
+            style={{
+              background: "transparent",
+              border: "none",
+              color: "var(--text)",
+              fontSize: 22,
+              cursor: "pointer",
+            }}
+          >
+            ×
+          </button>
+        </div>
 
-        {cart.length === 0 && <p>Carrinho vazio</p>}
+        {cart.length === 0 && (
+          <p style={{ opacity: 0.7 }}>Seu carrinho está vazio.</p>
+        )}
 
-        <div style={{ flex: 1, overflowY: "auto" }}>
+        <div style={{ flex: 1, overflowY: "auto", display: "flex", flexDirection: "column", gap: 10 }}>
           {cart.map((item) => (
-            <div key={item.id} style={{ marginBottom: "15px" }}>
-              <h4>{item.nome}</h4>
-              <p>R$ {item.preco}</p>
-
-              <button onClick={() => removeFromCart(item.id)}>
-                Remover
-              </button>
+            <div
+              key={item.id}
+              style={{
+                border: "1px solid var(--border)",
+                borderRadius: 8,
+                padding: 10,
+                display: "flex",
+                gap: 10,
+              }}
+            >
+              {(item.imagem || item.image) && (
+                <img
+                  src={item.imagem || item.image}
+                  alt={item.nome}
+                  style={{ width: 56, height: 56, objectFit: "cover", borderRadius: 6 }}
+                />
+              )}
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ fontWeight: 600, fontSize: 14 }}>{item.nome}</div>
+                {item.tamanho && (
+                  <div style={{ fontSize: 12, opacity: 0.7 }}>Tam: {item.tamanho}</div>
+                )}
+                <div style={{ fontSize: 13, color: "var(--primary)", fontWeight: 700 }}>
+                  {formatBRL(item.preco)}
+                </div>
+                <div style={{ display: "flex", gap: 6, alignItems: "center", marginTop: 6 }}>
+                  <button
+                    onClick={() => updateQuantity(item.id, Math.max(1, (item.quantity || 1) - 1))}
+                    style={qtdBtn}
+                  >
+                    −
+                  </button>
+                  <span style={{ fontSize: 13, minWidth: 18, textAlign: "center" }}>
+                    {item.quantity || 1}
+                  </span>
+                  <button
+                    onClick={() => updateQuantity(item.id, (item.quantity || 1) + 1)}
+                    style={qtdBtn}
+                  >
+                    +
+                  </button>
+                  <button
+                    onClick={() => removeFromCart(item.id)}
+                    style={{
+                      marginLeft: "auto",
+                      background: "transparent",
+                      border: "none",
+                      color: "#e53935",
+                      fontSize: 12,
+                      cursor: "pointer",
+                    }}
+                  >
+                    Remover
+                  </button>
+                </div>
+              </div>
             </div>
           ))}
         </div>
 
-        <h3>Total: R$ {total}</h3>
-
-        <button
-          onClick={handleFinalizarCompra}
+        <div
           style={{
-            padding: "12px",
-            borderRadius: "8px",
-            border: "none",
-            background: "var(--primary)",
-            fontWeight: "bold",
-            cursor: "pointer",
-            marginBottom: "10px"
+            display: "flex",
+            justifyContent: "space-between",
+            fontSize: 14,
+            paddingTop: 8,
+            borderTop: "1px solid var(--border)",
           }}
         >
-          Finalizar compra
+          <span>Subtotal</span>
+          <strong>{formatBRL(subtotal)}</strong>
+        </div>
+
+        <button
+          onClick={handleVerCarrinho}
+          disabled={cart.length === 0}
+          style={{
+            padding: 12,
+            borderRadius: 8,
+            border: "none",
+            background: "var(--primary)",
+            color: "#000",
+            fontWeight: 700,
+            cursor: cart.length === 0 ? "not-allowed" : "pointer",
+            opacity: cart.length === 0 ? 0.5 : 1,
+          }}
+        >
+          Ver carrinho e finalizar
         </button>
       </div>
-
-      <CheckoutModal open={checkoutOpen} onClose={handleCheckoutClose} />
     </>
   );
 }
+
+const qtdBtn = {
+  width: 24,
+  height: 24,
+  border: "1px solid var(--border)",
+  background: "var(--bg)",
+  color: "var(--text)",
+  borderRadius: 4,
+  fontSize: 14,
+  cursor: "pointer",
+  lineHeight: 1,
+};

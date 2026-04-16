@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { login } from "../services/api";
+import { useAuth } from "../context/AuthContext";
 import useTheme from "../hooks/useTheme";
 import "../styles/auth.css";
 
@@ -11,6 +11,7 @@ export default function Login() {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const { theme, setTheme } = useTheme();
+  const { signIn } = useAuth();
 
   async function handleLogin(e) {
     e.preventDefault();
@@ -18,9 +19,10 @@ export default function Login() {
     setLoading(true);
 
     try {
-      const data = await login(email, senha);
-      localStorage.setItem("user", JSON.stringify(data));
-      navigate("/");
+      // signIn atualiza o estado global (user no AuthContext),
+      // o que faz o ProtectedRoute liberar as rotas sem precisar de F5.
+      await signIn(email, senha);
+      navigate("/", { replace: true });
     } catch (err) {
       setError(err.message);
     } finally {

@@ -31,6 +31,18 @@
 .navbar-brand {
   display: flex;
   align-items: center;
+  gap: 12px;
+}
+
+.navbar-logo {
+  height: 60px;
+  width: auto;
+  object-fit: contain;
+  transition: transform 0.3s ease;
+}
+
+.navbar-logo:hover {
+  transform: scale(1.05);
 }
 
 .brand-logo {
@@ -167,6 +179,10 @@
 @media (max-width: 768px) {
   .navbar {
     padding: 16px 20px;
+  }
+
+  .navbar-logo {
+    height: 45px;
   }
 
   .brand-logo {

@@ -4,10 +4,10 @@ const { autenticar, isAdmin } = require("../middlewares/auth");
 
 const controller = require("../controllers/categoriasController");
 
-// Público — listagem
 router.get("/", controller.listarCategorias);
+router.get("/:id", controller.obterCategoria);
 
-// Admin only — criação
+// Mantida por compatibilidade; retorna 400 (ver controller).
 router.post("/", autenticar, isAdmin, controller.criarCategoria);
 
 module.exports = router;

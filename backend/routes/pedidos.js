@@ -6,6 +6,16 @@ const { autenticar, isAdmin } = require("../middlewares/auth");
 router.get("/", autenticar, pedidosController.listarPedidos);
 router.post("/", autenticar, pedidosController.criarPedido);
 
+// Detalhe — usuário dono ou ADMIN (autorização feita no controller).
+router.get("/:pedidoId", autenticar, pedidosController.obterPedido);
+
+// Avaliação — cliente, só após recebido.
+router.post("/:pedidoId/avaliar", autenticar, pedidosController.avaliarPedido);
+
+// Rastreio — ADMIN cadastra código, cliente/ADMIN consultam status.
+router.patch("/:pedidoId/rastreio", autenticar, isAdmin, pedidosController.atualizarRastreio);
+router.get("/:pedidoId/rastreio", autenticar, pedidosController.consultarRastreio);
+
 // Rotas exclusivas para ADMIN
 router.put("/:pedidoId/confirmar-pix", autenticar, isAdmin, pedidosController.confirmarPagamentoPix);
 router.patch("/:pedidoId/status", autenticar, pedidosController.atualizarStatusPedido);

@@ -1,6 +1,8 @@
 require("dotenv").config();
 const db = require("../config/firebase");
-const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
+const frenet = require("../services/frenet");
+// Pagamento com cartão: migração para Mercado Pago planejada para a Fase 2.
+// Até lá, `processarPagamentoCartao` opera em modo dev (aprovação automática).
 
 // ================= CONFIGURAÇÃO DE COMISSÃO =================
 const COMISSAO_COLLECTION = "config_comissao";
@@ -28,10 +30,11 @@ exports.listarPedidos = async (req, res) => {
         .orderBy("criadoEm", "desc")
         .get();
     } else {
+      // Sem orderBy aqui — a combinação where + orderBy em campos diferentes
+      // exige índice composto no Firestore. Ordenamos em memória abaixo.
       snapshot = await db.firestore()
         .collection("pedidos")
         .where("userId", "==", req.user.id)
-        .orderBy("criadoEm", "desc")
         .get();
     }
 
@@ -39,6 +42,12 @@ exports.listarPedidos = async (req, res) => {
       id: doc.id,
       ...doc.data()
     }));
+
+    if (!isAdmin) {
+      pedidos.sort((a, b) =>
+        String(b.criadoEm || "").localeCompare(String(a.criadoEm || ""))
+      );
+    }
 
     res.json(pedidos);
   } catch (error) {
@@ -87,7 +96,7 @@ exports.criarPedido = async (req, res) => {
     let paymentId = null;
 
     if (metodoPagamento === "cartao_credito" || metodoPagamento === "cartao_debito") {
-      // Processa pagamento com Stripe
+      // Processa pagamento com cartão (stub até a Fase 2 — Mercado Pago)
       const resultado = await processarPagamentoCartao(total, metodoPagamento, dadosPagamento);
       pagamentoProcessado = resultado.success;
       paymentId = resultado.paymentId;
@@ -193,26 +202,233 @@ exports.confirmarPagamentoPix = async (req, res) => {
   }
 };
 
+// ================= STATUS CANÔNICOS =================
+// Fluxo oficial:
+//   aguardando_pagamento → em_producao → enviado → recebido
+//   (em qualquer ponto) → cancelado
+const STATUS_VALIDOS = [
+  "aguardando_pagamento",
+  "em_producao",
+  "enviado",
+  "recebido",
+  "cancelado",
+];
+
+// Transições que só ADMIN pode fazer manualmente.
+const STATUS_ADMIN_ONLY = ["em_producao", "enviado", "recebido", "cancelado"];
+
+// ================= OBTER PEDIDO POR ID =================
+exports.obterPedido = async (req, res) => {
+  try {
+    const { pedidoId } = req.params;
+    const doc = await db
+      .firestore()
+      .collection("pedidos")
+      .doc(pedidoId)
+      .get();
+
+    if (!doc.exists) {
+      return res.status(404).json({ error: "Pedido não encontrado" });
+    }
+
+    const pedido = { id: doc.id, ...doc.data() };
+    const isAdmin = req.user.role === "admin";
+
+    if (!isAdmin && pedido.userId !== req.user.id) {
+      return res.status(403).json({ error: "Sem permissão para ver este pedido" });
+    }
+
+    res.json(pedido);
+  } catch (error) {
+    console.error("ERRO OBTER PEDIDO:", error.message);
+    res.status(500).json({ error: "Erro ao obter pedido" });
+  }
+};
+
 // ================= ATUALIZAR STATUS DO PEDIDO =================
+// Cliente só pode cancelar o próprio pedido se ainda estiver aguardando_pagamento.
+// Qualquer outra transição exige ADMIN.
 exports.atualizarStatusPedido = async (req, res) => {
   try {
     const { pedidoId } = req.params;
     const { status } = req.body;
+    const isAdmin = req.user.role === "admin";
 
-    const statusValidos = ["pendente", "processando", "enviado", "entregue", "cancelado"];
-    if (!statusValidos.includes(status)) {
+    if (!STATUS_VALIDOS.includes(status)) {
       return res.status(400).json({ error: "Status inválido" });
     }
 
-    await db.firestore().collection("pedidos").doc(pedidoId).update({
-      status,
-      atualizadoEm: db.firestore.FieldValue.serverTimestamp()
-    });
+    const ref = db.firestore().collection("pedidos").doc(pedidoId);
+    const snap = await ref.get();
+    if (!snap.exists) {
+      return res.status(404).json({ error: "Pedido não encontrado" });
+    }
+    const pedido = snap.data();
 
-    res.json({ message: "Status atualizado com sucesso" });
+    if (!isAdmin) {
+      // Cliente só pode cancelar o próprio pedido, e apenas antes do pagamento.
+      if (pedido.userId !== req.user.id) {
+        return res.status(403).json({ error: "Sem permissão" });
+      }
+      if (status !== "cancelado") {
+        return res.status(403).json({ error: "Apenas ADMIN pode avançar status" });
+      }
+      if (pedido.status !== "aguardando_pagamento") {
+        return res.status(400).json({
+          error: "Só é possível cancelar antes do pagamento",
+        });
+      }
+    } else if (STATUS_ADMIN_ONLY.includes(status) && !isAdmin) {
+      return res.status(403).json({ error: "Apenas ADMIN" });
+    }
+
+    const updates = {
+      status,
+      atualizadoEm: db.firestore.FieldValue.serverTimestamp(),
+    };
+
+    // Registra timestamps por status (linha do tempo).
+    if (status === "enviado") updates.enviadoEm = db.firestore.FieldValue.serverTimestamp();
+    if (status === "recebido") updates.recebidoEm = db.firestore.FieldValue.serverTimestamp();
+    if (status === "cancelado") updates.canceladoEm = db.firestore.FieldValue.serverTimestamp();
+
+    await ref.update(updates);
+
+    res.json({ message: "Status atualizado com sucesso", status });
   } catch (error) {
     console.error("ERRO ATUALIZAR STATUS:", error.message);
     res.status(500).json({ error: "Erro ao atualizar status" });
+  }
+};
+
+// ================= ATUALIZAR RASTREIO (ADMIN) =================
+// Admin adiciona código de rastreio + transportadora.
+// Se o pedido estava em_producao, avança automaticamente para "enviado".
+exports.atualizarRastreio = async (req, res) => {
+  try {
+    const { pedidoId } = req.params;
+    const { codigoRastreio, transportadora, linkRastreio } = req.body;
+
+    if (!codigoRastreio) {
+      return res.status(400).json({ error: "codigoRastreio é obrigatório" });
+    }
+
+    const ref = db.firestore().collection("pedidos").doc(pedidoId);
+    const snap = await ref.get();
+    if (!snap.exists) {
+      return res.status(404).json({ error: "Pedido não encontrado" });
+    }
+
+    const pedido = snap.data();
+    const updates = {
+      rastreio: {
+        codigo: String(codigoRastreio).trim().toUpperCase(),
+        transportadora: transportadora || pedido?.frete?.transportadora || null,
+        link: linkRastreio || null,
+        adicionadoEm: new Date().toISOString(),
+      },
+      atualizadoEm: db.firestore.FieldValue.serverTimestamp(),
+    };
+
+    // Se ainda estava em produção, avança para enviado.
+    if (pedido.status === "em_producao" || pedido.status === "aguardando_pagamento") {
+      updates.status = "enviado";
+      updates.enviadoEm = db.firestore.FieldValue.serverTimestamp();
+    }
+
+    await ref.update(updates);
+    res.json({ message: "Rastreio atualizado", rastreio: updates.rastreio });
+  } catch (error) {
+    console.error("ERRO ATUALIZAR RASTREIO:", error.message);
+    res.status(500).json({ error: "Erro ao atualizar rastreio" });
+  }
+};
+
+// ================= CONSULTAR RASTREIO =================
+// Cliente dono do pedido ou ADMIN. Consulta status atual via Frenet (stub em dev).
+exports.consultarRastreio = async (req, res) => {
+  try {
+    const { pedidoId } = req.params;
+    const ref = db.firestore().collection("pedidos").doc(pedidoId);
+    const snap = await ref.get();
+    if (!snap.exists) {
+      return res.status(404).json({ error: "Pedido não encontrado" });
+    }
+    const pedido = snap.data();
+    const isAdmin = req.user.role === "admin";
+    if (!isAdmin && pedido.userId !== req.user.id) {
+      return res.status(403).json({ error: "Sem permissão" });
+    }
+    if (!pedido.rastreio?.codigo) {
+      return res.status(400).json({ error: "Pedido sem código de rastreio" });
+    }
+
+    const tracking = await frenet.consultarRastreio({
+      codigoRastreio: pedido.rastreio.codigo,
+      transportadora: pedido.rastreio.transportadora,
+      postadoEm: pedido.rastreio.adicionadoEm || pedido.enviadoEm || null,
+    });
+
+    // Persiste último snapshot.
+    await ref.update({
+      "rastreio.ultimaConsulta": tracking,
+      atualizadoEm: db.firestore.FieldValue.serverTimestamp(),
+    });
+
+    res.json(tracking);
+  } catch (error) {
+    console.error("ERRO CONSULTAR RASTREIO:", error.message);
+    res.status(500).json({ error: error.message || "Erro ao consultar rastreio" });
+  }
+};
+
+// ================= AVALIAÇÃO DO PEDIDO (CLIENTE) =================
+// Só permite se status=recebido e ainda não avaliado.
+exports.avaliarPedido = async (req, res) => {
+  try {
+    const { pedidoId } = req.params;
+    const { nota, comentario } = req.body;
+
+    const n = Number(nota);
+    if (!Number.isFinite(n) || n < 1 || n > 5) {
+      return res.status(400).json({ error: "Nota deve ser entre 1 e 5" });
+    }
+
+    const ref = db.firestore().collection("pedidos").doc(pedidoId);
+    const snap = await ref.get();
+    if (!snap.exists) {
+      return res.status(404).json({ error: "Pedido não encontrado" });
+    }
+    const pedido = snap.data();
+
+    if (pedido.userId !== req.user.id) {
+      return res.status(403).json({ error: "Sem permissão" });
+    }
+    if (pedido.status !== "recebido") {
+      return res.status(400).json({
+        error: "Só é possível avaliar pedidos recebidos",
+      });
+    }
+    if (pedido.avaliacao) {
+      return res.status(400).json({ error: "Pedido já foi avaliado" });
+    }
+
+    const avaliacao = {
+      nota: n,
+      comentario: (comentario || "").toString().slice(0, 1000),
+      avaliadoEm: new Date().toISOString(),
+      userId: req.user.id,
+    };
+
+    await ref.update({
+      avaliacao,
+      atualizadoEm: db.firestore.FieldValue.serverTimestamp(),
+    });
+
+    res.json({ message: "Avaliação registrada", avaliacao });
+  } catch (error) {
+    console.error("ERRO AVALIAR PEDIDO:", error.message);
+    res.status(500).json({ error: "Erro ao avaliar pedido" });
   }
 };
 
@@ -322,32 +538,13 @@ function gerarPixCode(valor, email) {
   };
 }
 
-// ================= PROCESSAR PAGAMENTO CARTÃO (Stripe) =================
+// ================= PROCESSAR PAGAMENTO CARTÃO =================
+// TODO Fase 2: integrar Mercado Pago (Payment API / Checkout Bricks).
+// Por ora, aprovamos qualquer tentativa em modo dev.
+// Parâmetros mantidos para a assinatura não quebrar os callers.
+// eslint-disable-next-line no-unused-vars
 async function processarPagamentoCartao(total, metodoPagamento, dadosPagamento) {
-  if (!process.env.STRIPE_SECRET_KEY || process.env.STRIPE_SECRET_KEY === "") {
-    // Ambiente de desenvolvimento sem Stripe configurado
-    return { success: true, paymentId: "dev_card_payment_" + Date.now() };
-  }
-
-  try {
-    const paymentIntent = await stripe.paymentIntents.create({
-      amount: Math.round(total * 100), // Stripe usa centavos
-      currency: "brl",
-      payment_method_types: [metodoPagamento === "cartao_credito" ? "card" : "debit_card"],
-      payment_method: dadosPagamento.paymentMethodId,
-      confirm: true,
-      return_url: dadosPagamento.returnUrl || "http://localhost:3000/pedido/sucesso"
-    });
-
-    return {
-      success: paymentIntent.status === "succeeded",
-      paymentId: paymentIntent.id,
-      status: paymentIntent.status
-    };
-  } catch (error) {
-    console.error("Erro processamento Stripe:", error.message);
-    throw new Error("Falha no processamento do cartão: " + error.message);
-  }
+  return { success: true, paymentId: "dev_card_payment_" + Date.now() };
 }
 
 // ================= VALIDAR QUANTIDADE DE PRODUTOS =================

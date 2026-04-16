@@ -3,6 +3,8 @@ import { useNavigate } from "react-router-dom";
 import { useCart } from "../context/CartContext";
 import { useAuth } from "../context/AuthContext";
 import CartSidebar from "./CartSidebar";
+import logo from "../assets/logo-mazza.png";
+import logoDark from "../assets/logo-mazza-dark.png";
 import "../styles/navbar.css";
 
 export default function Navbar({ onThemeToggle, theme }) {
@@ -17,7 +19,11 @@ export default function Navbar({ onThemeToggle, theme }) {
     <>
       <nav className="navbar">
         <div className="navbar-brand" onClick={() => navigate('/')} style={{ cursor: 'pointer' }}>
-          <h1 className="brand-logo">MAZZA</h1>
+          <img 
+            src={theme === 'dark' ? logo : logoDark} 
+            alt="Mazza Moda Masculina" 
+            className="navbar-logo" 
+          />
         </div>
 
         <div className="navbar-actions">
@@ -25,6 +31,28 @@ export default function Navbar({ onThemeToggle, theme }) {
             <button className="nav-admin-btn" onClick={() => navigate('/admin')}>
               <span className="btn-icon">📊</span>
               <span>Admin</span>
+            </button>
+          )}
+
+          {user && !isAdmin && (
+            <button
+              className="nav-admin-btn"
+              onClick={() => navigate('/conta/pedidos')}
+              title="Meus pedidos"
+            >
+              <span className="btn-icon">🧾</span>
+              <span>Pedidos</span>
+            </button>
+          )}
+
+          {user && !isAdmin && (
+            <button
+              className="nav-admin-btn"
+              onClick={() => navigate('/conta/favoritos')}
+              title="Meus favoritos"
+            >
+              <span className="btn-icon">♥</span>
+              <span>Favoritos</span>
             </button>
           )}
 
