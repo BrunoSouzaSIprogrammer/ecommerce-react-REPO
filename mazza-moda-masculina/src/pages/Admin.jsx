@@ -7,6 +7,7 @@ import PedidosManager from "../components/Admin/PedidosManager";
 import Dashboard from "../components/Admin/DashBoard";
 import CuponsManager from "../components/Admin/CuponsManager";
 import FavoritosRanking from "../components/Admin/FavoritosRanking";
+import UsersManager from "../components/Admin/UsersManager";
 import "../styles/admin.css";
 
 export default function Admin() {
@@ -65,6 +66,13 @@ export default function Admin() {
             <span>Favoritos</span>
           </button>
           <button
+            className={`nav-item ${activeTab === "usuarios" ? "active" : ""}`}
+            onClick={() => setActiveTab("usuarios")}
+          >
+            <span className="nav-icon">👥</span>
+            <span>Usuários</span>
+          </button>
+          <button
             className={`nav-item ${activeTab === "financeiro" ? "active" : ""}`}
             onClick={() => setActiveTab("financeiro")}
           >
@@ -97,6 +105,7 @@ export default function Admin() {
             {activeTab === "pedidos" && "Pedidos"}
             {activeTab === "cupons" && "Cupons de desconto"}
             {activeTab === "favoritos" && "Revisão de favoritos"}
+            {activeTab === "usuarios" && "Gestão de Usuários"}
             {activeTab === "financeiro" && "Financeiro"}
           </h2>
           <div className="header-actions">
@@ -119,6 +128,7 @@ export default function Admin() {
           {activeTab === "pedidos" && <PedidosManager />}
           {activeTab === "cupons" && <CuponsManager />}
           {activeTab === "favoritos" && <FavoritosRanking />}
+          {activeTab === "usuarios" && <UsersManager />}
           {activeTab === "financeiro" && (
             <div className="coming-soon">
               <span className="icon">🚧</span>

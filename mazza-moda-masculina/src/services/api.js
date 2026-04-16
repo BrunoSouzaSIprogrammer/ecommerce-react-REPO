@@ -33,10 +33,57 @@ export const register = async (nome, email, senha) => {
   return data;
 };
 
+// ================= USUÁRIOS (Admin) =================
+export const listarUsuarios = async (token) => {
+  const res = await fetch(`${API_URL}/usuarios`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.error || "Erro ao listar usuários");
+  }
+  return res.json();
+};
+
+export const alterarRoleUsuario = async (id, role, token) => {
+  const res = await fetch(`${API_URL}/usuarios/${id}/role`, {
+    method: "PATCH",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify({ role }),
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.error || "Erro ao alterar role");
+  }
+  return res.json();
+};
+
+export const desativarUsuario = async (id, token) => {
+  const res = await fetch(`${API_URL}/usuarios/${id}/desativar`, {
+    method: "PUT",
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.error || "Erro ao desativar usuário");
+  }
+  return res.json();
+};
+
 // ================= PRODUTOS =================
 export const getProdutos = async (token = null) => {
   const headers = token ? { Authorization: `Bearer ${token}` } : {};
   const res = await fetch(`${API_URL}/produtos`, { headers });
+  return res.json();
+};
+
+export const getProdutosAdmin = async (token) => {
+  const res = await fetch(`${API_URL}/produtos?incluirSemEstoque=true`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
   return res.json();
 };
 
@@ -72,7 +119,18 @@ export const createProduto = async (produto, token) => {
   formData.append("preco", produto.preco);
   formData.append("categoriaId", produto.categoriaId);
   formData.append("destaque", produto.destaque || false);
-  if (produto.imagem) {
+  if (produto.descricao) formData.append("descricao", produto.descricao);
+  if (produto.marca) formData.append("marca", produto.marca);
+  if (produto.tipo) formData.append("tipo", produto.tipo);
+  if (produto.subtipo) formData.append("subtipo", produto.subtipo);
+  if (produto.cores) formData.append("cores", produto.cores);
+  if (produto.tamanhos) formData.append("tamanhos", produto.tamanhos);
+  if (produto.estampa !== undefined) formData.append("estampa", produto.estampa);
+  if (produto.estoque !== undefined) formData.append("estoque", produto.estoque);
+
+  if (produto.imagens && produto.imagens.length) {
+    produto.imagens.forEach((img) => formData.append("imagens", img));
+  } else if (produto.imagem) {
     formData.append("imagem", produto.imagem);
   }
 
@@ -84,7 +142,7 @@ export const createProduto = async (produto, token) => {
 
   if (!res.ok) {
     const error = await res.json();
-    throw new Error(error.error || "Erro ao criar produto");
+    throw new Error(error.erro || error.error || "Erro ao criar produto");
   }
 
   return res.json();

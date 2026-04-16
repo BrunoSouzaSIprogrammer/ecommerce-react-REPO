@@ -155,6 +155,13 @@ exports.listarProdutos = async (req, res) => {
       produtos = produtos.filter((p) => Boolean(p.destaque) === destaque);
     }
 
+    // Estoque zerado: esconde da vitrine pública.
+    // Admin pode passar ?incluirSemEstoque=true para ver tudo.
+    const incluirSemEstoque = parseBool(req.query.incluirSemEstoque);
+    if (!incluirSemEstoque) {
+      produtos = produtos.filter((p) => (p.estoque ?? 1) > 0);
+    }
+
     // Ordenação
     switch (ordenar) {
       case "menor-preco":
@@ -169,7 +176,6 @@ exports.listarProdutos = async (req, res) => {
         );
         break;
       default:
-        // sem ordenação explícita — mantém ordem do Firestore
         break;
     }
 

@@ -1,24 +1,59 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useAuth } from "../../context/AuthContext";
 import { useCart } from "../../context/CartContext";
-import { getProdutos, createProduto, updateProduto, deleteProduto } from "../../services/api";
+import {
+  getProdutosAdmin,
+  createProduto,
+  updateProduto,
+  deleteProduto,
+  updateEstoque,
+} from "../../services/api";
+import { CATEGORIAS, CATEGORIAS_POR_ID } from "../../utils/filtros";
 import "../../styles/products-manager.css";
+
+const IMG_W = 450;
+const IMG_H = 600;
+
+function validarDimensoesImagem(file) {
+  return new Promise((resolve) => {
+    const img = new Image();
+    img.onload = () => {
+      URL.revokeObjectURL(img.src);
+      resolve(img.width === IMG_W && img.height === IMG_H);
+    };
+    img.onerror = () => resolve(false);
+    img.src = URL.createObjectURL(file);
+  });
+}
+
+const FORM_INICIAL = {
+  nome: "",
+  descricao: "",
+  preco: "",
+  categoriaId: "",
+  marca: "",
+  tipo: "",
+  subtipo: "",
+  cores: "",
+  tamanhos: "",
+  estampa: false,
+  destaque: false,
+  estoque: "",
+};
 
 export default function ProductsManager() {
   const [produtos, setProdutos] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
   const [editingProduct, setEditingProduct] = useState(null);
+  const [imagens, setImagens] = useState([]);
+  const [imgError, setImgError] = useState("");
+  const [filtroEstoque, setFiltroEstoque] = useState("todos");
+  const [busca, setBusca] = useState("");
+  const fileRef = useRef();
   const { user } = useAuth();
   const { showToast } = useCart();
-
-  const [formData, setFormData] = useState({
-    nome: "",
-    preco: "",
-    categoriaId: "",
-    estoque: "",
-    destaque: false
-  });
+  const [formData, setFormData] = useState(FORM_INICIAL);
 
   useEffect(() => {
     loadProducts();
@@ -27,7 +62,7 @@ export default function ProductsManager() {
   async function loadProducts() {
     try {
       setLoading(true);
-      const data = await getProdutos();
+      const data = await getProdutosAdmin(user.token);
       setProdutos(Array.isArray(data) ? data : []);
     } catch (error) {
       showToast("Erro ao carregar produtos");
@@ -36,27 +71,49 @@ export default function ProductsManager() {
     }
   }
 
+  const categoriaSelecionada = formData.categoriaId
+    ? CATEGORIAS_POR_ID[formData.categoriaId]
+    : null;
+
   function openModal(product = null) {
+    setImgError("");
+    setImagens([]);
     if (product) {
       setEditingProduct(product);
       setFormData({
         nome: product.nome || "",
-        preco: product.preco || "",
+        descricao: product.descricao || "",
+        preco: product.preco ?? "",
         categoriaId: product.categoriaId || "",
-        estoque: product.estoque || "",
-        destaque: product.destaque || false
+        marca: product.marca || "",
+        tipo: product.tipo || "",
+        subtipo: product.subtipo || "",
+        cores: Array.isArray(product.cores) ? product.cores.join(", ") : product.cores || "",
+        tamanhos: Array.isArray(product.tamanhos) ? product.tamanhos.join(", ") : product.tamanhos || "",
+        estampa: product.estampa || false,
+        destaque: product.destaque || false,
+        estoque: product.estoque ?? "",
       });
     } else {
       setEditingProduct(null);
-      setFormData({
-        nome: "",
-        preco: "",
-        categoriaId: "",
-        estoque: "",
-        destaque: false
-      });
+      setFormData(FORM_INICIAL);
     }
     setShowModal(true);
+  }
+
+  async function handleImageChange(e) {
+    const files = Array.from(e.target.files);
+    setImgError("");
+
+    for (const file of files) {
+      const ok = await validarDimensoesImagem(file);
+      if (!ok) {
+        setImgError(`"${file.name}" não tem ${IMG_W}x${IMG_H}px. Ajuste antes de enviar.`);
+        e.target.value = "";
+        return;
+      }
+    }
+    setImagens(files);
   }
 
   async function handleSubmit(e) {
@@ -66,13 +123,16 @@ export default function ProductsManager() {
       const produtoData = {
         ...formData,
         preco: parseFloat(formData.preco),
-        estoque: parseInt(formData.estoque) || 0
+        estoque: parseInt(formData.estoque) || 0,
       };
 
       if (editingProduct) {
         await updateProduto(editingProduct.id, produtoData, user.token);
         showToast("Produto atualizado com sucesso!");
       } else {
+        if (imagens.length) {
+          produtoData.imagens = imagens;
+        }
         await createProduto(produtoData, user.token);
         showToast("Produto criado com sucesso!");
       }
@@ -86,10 +146,9 @@ export default function ProductsManager() {
 
   async function handleDelete(id) {
     if (!window.confirm("Tem certeza que deseja deletar este produto?")) return;
-
     try {
       await deleteProduto(id, user.token);
-      showToast("Produto deletado com sucesso!");
+      showToast("Produto deletado!");
       loadProducts();
     } catch (error) {
       showToast("Erro ao deletar produto");
@@ -98,13 +157,42 @@ export default function ProductsManager() {
 
   async function toggleDestaque(produto) {
     try {
-      await updateProduto(produto.id, { ...produto, destaque: !produto.destaque }, user.token);
+      await updateProduto(produto.id, { destaque: !produto.destaque }, user.token);
       showToast(produto.destaque ? "Destaque removido" : "Produto em destaque!");
       loadProducts();
     } catch (error) {
       showToast("Erro ao atualizar destaque");
     }
   }
+
+  async function handleEstoqueInline(produto, delta) {
+    const novoEstoque = Math.max(0, (produto.estoque || 0) + delta);
+    try {
+      await updateEstoque(produto.id, novoEstoque, user.token);
+      loadProducts();
+    } catch (error) {
+      showToast("Erro ao atualizar estoque");
+    }
+  }
+
+  const produtosFiltrados = produtos.filter((p) => {
+    if (filtroEstoque === "sem-estoque" && (p.estoque ?? 1) > 0) return false;
+    if (filtroEstoque === "baixo" && (p.estoque ?? 99) > 5) return false;
+    if (filtroEstoque === "em-estoque" && (p.estoque ?? 1) <= 0) return false;
+    if (busca) {
+      const q = busca.toLowerCase();
+      if (
+        !(p.nome || "").toLowerCase().includes(q) &&
+        !(p.categoriaId || "").toLowerCase().includes(q)
+      )
+        return false;
+    }
+    return true;
+  });
+
+  const totalVendidos = produtos.reduce((s, p) => s + (p.vendidos || 0), 0);
+  const semEstoque = produtos.filter((p) => (p.estoque ?? 1) === 0).length;
+  const baixoEstoque = produtos.filter((p) => (p.estoque ?? 99) > 0 && (p.estoque ?? 99) <= 5).length;
 
   if (loading) {
     return (
@@ -117,11 +205,14 @@ export default function ProductsManager() {
 
   return (
     <div className="products-manager">
-      {/* Header */}
       <div className="manager-header">
         <div className="header-info">
-          <h3>Total de Produtos</h3>
-          <p className="count">{produtos.length} produtos cadastrados</p>
+          <h3>Gestão de Produtos</h3>
+          <p className="count">
+            {produtos.length} produtos &middot; {totalVendidos} vendidos &middot;{" "}
+            <span className="text-warning">{baixoEstoque} baixo estoque</span> &middot;{" "}
+            <span className="text-danger">{semEstoque} sem estoque</span>
+          </p>
         </div>
         <button className="add-btn" onClick={() => openModal()}>
           <span className="btn-icon">+</span>
@@ -129,7 +220,26 @@ export default function ProductsManager() {
         </button>
       </div>
 
-      {/* Products Table */}
+      <div className="manager-filters">
+        <input
+          type="text"
+          className="search-input"
+          placeholder="Buscar por nome ou categoria..."
+          value={busca}
+          onChange={(e) => setBusca(e.target.value)}
+        />
+        <select
+          className="filter-select"
+          value={filtroEstoque}
+          onChange={(e) => setFiltroEstoque(e.target.value)}
+        >
+          <option value="todos">Todos</option>
+          <option value="em-estoque">Em estoque</option>
+          <option value="baixo">Baixo estoque (≤5)</option>
+          <option value="sem-estoque">Sem estoque (ocultos)</option>
+        </select>
+      </div>
+
       <div className="products-table-wrapper">
         <table className="products-table">
           <thead>
@@ -138,64 +248,73 @@ export default function ProductsManager() {
               <th>Preço</th>
               <th>Categoria</th>
               <th>Estoque</th>
+              <th>Vendidos</th>
               <th>Destaque</th>
               <th>Ações</th>
             </tr>
           </thead>
           <tbody>
-            {produtos.length === 0 ? (
+            {produtosFiltrados.length === 0 ? (
               <tr>
-                <td colSpan={6} className="no-products">
+                <td colSpan={7} className="no-products">
                   <span className="icon">📦</span>
-                  <p>Nenhum produto cadastrado</p>
+                  <p>Nenhum produto encontrado</p>
                 </td>
               </tr>
             ) : (
-              produtos.map(produto => (
-                <tr key={produto.id}>
+              produtosFiltrados.map((produto) => (
+                <tr key={produto.id} className={produto.estoque === 0 ? "row-sem-estoque" : ""}>
                   <td>
                     <div className="product-cell">
                       <img
-                        src={produto.imagem
-                          ? `http://localhost:5000/uploads/${produto.imagem}`
-                          : "https://picsum.photos/50"}
+                        src={
+                          produto.imagem
+                            ? `http://localhost:5000/uploads/${produto.imagem}`
+                            : "https://picsum.photos/50"
+                        }
                         alt={produto.nome}
                         className="product-thumb"
                       />
-                      <span className="product-name">{produto.nome}</span>
+                      <div>
+                        <span className="product-name">{produto.nome}</span>
+                        {produto.estoque === 0 && (
+                          <span className="badge-oculto">Oculto da vitrine</span>
+                        )}
+                      </div>
                     </div>
                   </td>
                   <td className="price">
-                    R$ {typeof produto.preco === 'number'
-                      ? produto.preco.toFixed(2)
-                      : '0.00'}
+                    R$ {typeof produto.preco === "number" ? produto.preco.toFixed(2) : "0.00"}
                   </td>
                   <td>{produto.categoriaId || "-"}</td>
                   <td>
-                    <span className={`stock-badge ${produto.estoque <= 5 ? 'low' : ''} ${produto.estoque === 0 ? 'out' : ''}`}>
-                      {produto.estoque !== undefined ? produto.estoque : '∞'}
-                    </span>
+                    <div className="estoque-inline">
+                      <button className="estoque-btn" onClick={() => handleEstoqueInline(produto, -1)}>−</button>
+                      <span
+                        className={`stock-badge ${
+                          produto.estoque <= 5 ? "low" : ""
+                        } ${produto.estoque === 0 ? "out" : ""}`}
+                      >
+                        {produto.estoque !== undefined ? produto.estoque : "∞"}
+                      </span>
+                      <button className="estoque-btn" onClick={() => handleEstoqueInline(produto, 1)}>+</button>
+                    </div>
                   </td>
+                  <td className="vendidos">{produto.vendidos || 0}</td>
                   <td>
                     <button
-                      className={`toggle-destaque ${produto.destaque ? 'active' : ''}`}
+                      className={`toggle-destaque ${produto.destaque ? "active" : ""}`}
                       onClick={() => toggleDestaque(produto)}
                     >
-                      {produto.destaque ? '⭐' : '☆'}
+                      {produto.destaque ? "⭐" : "☆"}
                     </button>
                   </td>
                   <td>
                     <div className="actions">
-                      <button
-                        className="edit-btn"
-                        onClick={() => openModal(produto)}
-                      >
+                      <button className="edit-btn" onClick={() => openModal(produto)}>
                         ✏️
                       </button>
-                      <button
-                        className="delete-btn"
-                        onClick={() => handleDelete(produto.id)}
-                      >
+                      <button className="delete-btn" onClick={() => handleDelete(produto.id)}>
                         🗑️
                       </button>
                     </div>
@@ -207,13 +326,14 @@ export default function ProductsManager() {
         </table>
       </div>
 
-      {/* Modal */}
       {showModal && (
         <div className="modal-overlay" onClick={() => setShowModal(false)}>
-          <div className="modal-content" onClick={e => e.stopPropagation()}>
+          <div className="modal-content modal-lg" onClick={(e) => e.stopPropagation()}>
             <div className="modal-header">
-              <h3>{editingProduct ? 'Editar Produto' : 'Novo Produto'}</h3>
-              <button className="close-btn" onClick={() => setShowModal(false)}>×</button>
+              <h3>{editingProduct ? "Editar Produto" : "Novo Produto"}</h3>
+              <button className="close-btn" onClick={() => setShowModal(false)}>
+                ×
+              </button>
             </div>
 
             <form onSubmit={handleSubmit} className="modal-form">
@@ -222,9 +342,19 @@ export default function ProductsManager() {
                 <input
                   type="text"
                   value={formData.nome}
-                  onChange={e => setFormData({ ...formData, nome: e.target.value })}
-                  placeholder="Ex: Camisa Social"
+                  onChange={(e) => setFormData({ ...formData, nome: e.target.value })}
+                  placeholder="Ex: Camisa Polo Premium"
                   required
+                />
+              </div>
+
+              <div className="form-group">
+                <label>Descrição</label>
+                <textarea
+                  value={formData.descricao}
+                  onChange={(e) => setFormData({ ...formData, descricao: e.target.value })}
+                  placeholder="Descrição do produto..."
+                  rows={3}
                 />
               </div>
 
@@ -235,54 +365,149 @@ export default function ProductsManager() {
                     type="number"
                     step="0.01"
                     value={formData.preco}
-                    onChange={e => setFormData({ ...formData, preco: e.target.value })}
+                    onChange={(e) => setFormData({ ...formData, preco: e.target.value })}
                     placeholder="0.00"
                     required
                   />
                 </div>
-
                 <div className="form-group">
                   <label>Estoque</label>
                   <input
                     type="number"
                     value={formData.estoque}
-                    onChange={e => setFormData({ ...formData, estoque: e.target.value })}
+                    onChange={(e) => setFormData({ ...formData, estoque: e.target.value })}
                     placeholder="0"
                   />
                 </div>
               </div>
 
-              <div className="form-group">
-                <label>Categoria</label>
-                <input
-                  type="text"
-                  value={formData.categoriaId}
-                  onChange={e => setFormData({ ...formData, categoriaId: e.target.value })}
-                  placeholder="Ex: Camisas"
-                />
+              <div className="form-row">
+                <div className="form-group">
+                  <label>Categoria</label>
+                  <select
+                    value={formData.categoriaId}
+                    onChange={(e) =>
+                      setFormData({ ...formData, categoriaId: e.target.value, tipo: "", subtipo: "" })
+                    }
+                    required
+                  >
+                    <option value="">Selecione...</option>
+                    {CATEGORIAS.map((cat) => (
+                      <option key={cat.id} value={cat.id}>
+                        {cat.icone} {cat.label}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div className="form-group">
+                  <label>Marca</label>
+                  <input
+                    type="text"
+                    value={formData.marca}
+                    onChange={(e) => setFormData({ ...formData, marca: e.target.value })}
+                    placeholder="Ex: Nike"
+                  />
+                </div>
               </div>
 
-              <div className="form-group checkbox-group">
-                <label className="checkbox-label">
+              {categoriaSelecionada?.filtros?.tipo && (
+                <div className="form-group">
+                  <label>Tipo</label>
+                  <select
+                    value={formData.tipo}
+                    onChange={(e) => setFormData({ ...formData, tipo: e.target.value, subtipo: "" })}
+                  >
+                    <option value="">Selecione...</option>
+                    {categoriaSelecionada.filtros.tipo.opcoes.map((t) => (
+                      <option key={t} value={t}>
+                        {t}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              )}
+
+              {categoriaSelecionada?.filtros?.subtipo?.subtipoPor?.[formData.tipo] && (
+                <div className="form-group">
+                  <label>Subtipo</label>
+                  <select
+                    value={formData.subtipo}
+                    onChange={(e) => setFormData({ ...formData, subtipo: e.target.value })}
+                  >
+                    <option value="">Selecione...</option>
+                    {categoriaSelecionada.filtros.subtipo.subtipoPor[formData.tipo].map((s) => (
+                      <option key={s} value={s}>
+                        {s}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              )}
+
+              <div className="form-row">
+                <div className="form-group">
+                  <label>Cores (separadas por vírgula)</label>
                   <input
-                    type="checkbox"
-                    checked={formData.destaque}
-                    onChange={e => setFormData({ ...formData, destaque: e.target.checked })}
+                    type="text"
+                    value={formData.cores}
+                    onChange={(e) => setFormData({ ...formData, cores: e.target.value })}
+                    placeholder="Azul, Preto, Branco"
                   />
-                  <span>Marcar como destaque</span>
-                </label>
+                </div>
+                <div className="form-group">
+                  <label>Tamanhos (separados por vírgula)</label>
+                  <input
+                    type="text"
+                    value={formData.tamanhos}
+                    onChange={(e) => setFormData({ ...formData, tamanhos: e.target.value })}
+                    placeholder="P, M, G, GG"
+                  />
+                </div>
+              </div>
+
+              {!editingProduct && (
+                <div className="form-group">
+                  <label>Imagens ({IMG_W}x{IMG_H}px obrigatório)</label>
+                  <input
+                    ref={fileRef}
+                    type="file"
+                    accept="image/png,image/jpeg"
+                    multiple
+                    onChange={handleImageChange}
+                  />
+                  {imgError && <p className="field-error">{imgError}</p>}
+                </div>
+              )}
+
+              <div className="form-row">
+                <div className="form-group checkbox-group">
+                  <label className="checkbox-label">
+                    <input
+                      type="checkbox"
+                      checked={formData.estampa}
+                      onChange={(e) => setFormData({ ...formData, estampa: e.target.checked })}
+                    />
+                    <span>Com estampa</span>
+                  </label>
+                </div>
+                <div className="form-group checkbox-group">
+                  <label className="checkbox-label">
+                    <input
+                      type="checkbox"
+                      checked={formData.destaque}
+                      onChange={(e) => setFormData({ ...formData, destaque: e.target.checked })}
+                    />
+                    <span>Marcar como destaque</span>
+                  </label>
+                </div>
               </div>
 
               <div className="modal-actions">
-                <button
-                  type="button"
-                  className="cancel-btn"
-                  onClick={() => setShowModal(false)}
-                >
+                <button type="button" className="cancel-btn" onClick={() => setShowModal(false)}>
                   Cancelar
                 </button>
                 <button type="submit" className="save-btn">
-                  {editingProduct ? 'Salvar Alterações' : 'Criar Produto'}
+                  {editingProduct ? "Salvar Alterações" : "Criar Produto"}
                 </button>
               </div>
             </form>

@@ -1,0 +1,95 @@
+.users-manager {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.info-banner {
+  background: rgba(201, 162, 39, 0.1);
+  border: 1px solid rgba(201, 162, 39, 0.3);
+  border-radius: 10px;
+  padding: 14px 20px;
+  color: #c9a227;
+  font-size: 14px;
+  text-align: center;
+}
+
+.role-badge {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.role-badge.admin {
+  background: rgba(201, 162, 39, 0.15);
+  color: #c9a227;
+}
+
+.role-badge.user {
+  background: rgba(100, 100, 100, 0.15);
+  color: #888;
+}
+
+.status-badge {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.status-badge.ativo {
+  background: rgba(40, 167, 69, 0.15);
+  color: #28a745;
+}
+
+.status-badge.inativo {
+  background: rgba(220, 53, 69, 0.15);
+  color: #dc3545;
+}
+
+.role-toggle-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  border: 1px solid #333;
+  background: transparent;
+  color: #ccc;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.role-toggle-btn.promote {
+  border-color: rgba(40, 167, 69, 0.4);
+  color: #28a745;
+}
+
+.role-toggle-btn.promote:hover {
+  background: rgba(40, 167, 69, 0.15);
+}
+
+.role-toggle-btn.demote {
+  border-color: rgba(255, 193, 7, 0.4);
+  color: #ffc107;
+}
+
+.role-toggle-btn.demote:hover {
+  background: rgba(255, 193, 7, 0.15);
+}
+
+.master-badge {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: #c9a227;
+  padding: 4px 10px;
+  background: rgba(201, 162, 39, 0.1);
+  border-radius: 6px;
+}

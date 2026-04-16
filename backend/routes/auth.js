@@ -11,5 +11,6 @@ router.post("/cadastrar", authController.cadastrar);
 router.put("/senha", authController.atualizarSenha);
 router.get("/usuarios", autenticar, isAdmin, authController.listarUsuarios);
 router.put("/usuarios/:id/desativar", autenticar, isAdmin, authController.desativarUsuario);
+router.patch("/usuarios/:id/role", autenticar, isAdmin, authController.alterarRole);
 
 module.exports = router;

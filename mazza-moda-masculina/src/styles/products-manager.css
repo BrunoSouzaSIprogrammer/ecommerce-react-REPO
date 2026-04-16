@@ -1,6 +1,212 @@
 /* ============================================
    MAZZA - Products Manager Styles
-   (Imported via admin.css)
    ============================================ */
 
-/* Additional styles for ProductsManager component */
+/* Filters bar */
+.manager-filters {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.search-input {
+  flex: 1;
+  padding: 12px 16px;
+  background: #141414;
+  border: 1px solid #2a2a2a;
+  border-radius: 10px;
+  color: #fff;
+  font-size: 14px;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.admin-page.light .search-input {
+  background: #fff;
+  border-color: #e0e0e0;
+  color: #111;
+}
+
+.search-input:focus {
+  border-color: var(--mazza-primary, #c9a227);
+}
+
+.filter-select {
+  padding: 12px 16px;
+  background: #141414;
+  border: 1px solid #2a2a2a;
+  border-radius: 10px;
+  color: #fff;
+  font-size: 14px;
+  outline: none;
+  cursor: pointer;
+  min-width: 200px;
+}
+
+.admin-page.light .filter-select {
+  background: #fff;
+  border-color: #e0e0e0;
+  color: #111;
+}
+
+/* Metrics text colors */
+.text-warning {
+  color: #ffc107;
+}
+
+.text-danger {
+  color: #dc3545;
+}
+
+/* Row sem estoque */
+.row-sem-estoque {
+  opacity: 0.55;
+}
+
+/* Badge oculto */
+.badge-oculto {
+  display: inline-block;
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #dc3545;
+  background: rgba(220, 53, 69, 0.12);
+  padding: 2px 8px;
+  border-radius: 4px;
+  margin-top: 4px;
+}
+
+/* Estoque inline +/- */
+.estoque-inline {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.estoque-btn {
+  width: 26px;
+  height: 26px;
+  border-radius: 6px;
+  border: 1px solid #333;
+  background: transparent;
+  color: #ccc;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+}
+
+.admin-page.light .estoque-btn {
+  border-color: #ddd;
+  color: #555;
+}
+
+.estoque-btn:hover {
+  border-color: var(--mazza-primary, #c9a227);
+  color: var(--mazza-primary, #c9a227);
+}
+
+/* Vendidos column */
+.vendidos {
+  font-weight: 600;
+  color: #888;
+}
+
+/* Modal large (for full product form) */
+.modal-lg {
+  max-width: 680px;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+/* Textarea in modal */
+.modal-form textarea {
+  width: 100%;
+  padding: 12px 14px;
+  background: #1a1a1a;
+  border: 1px solid #333;
+  border-radius: 8px;
+  color: #fff;
+  font-size: 14px;
+  font-family: inherit;
+  resize: vertical;
+  outline: none;
+}
+
+.admin-page.light .modal-form textarea {
+  background: #f8f8f8;
+  border-color: #ddd;
+  color: #111;
+}
+
+.modal-form textarea:focus {
+  border-color: var(--mazza-primary, #c9a227);
+}
+
+/* Select in modal */
+.modal-form select {
+  width: 100%;
+  padding: 12px 14px;
+  background: #1a1a1a;
+  border: 1px solid #333;
+  border-radius: 8px;
+  color: #fff;
+  font-size: 14px;
+  outline: none;
+  cursor: pointer;
+}
+
+.admin-page.light .modal-form select {
+  background: #f8f8f8;
+  border-color: #ddd;
+  color: #111;
+}
+
+.modal-form select:focus {
+  border-color: var(--mazza-primary, #c9a227);
+}
+
+/* File input */
+.modal-form input[type="file"] {
+  padding: 10px 0;
+  color: #aaa;
+  font-size: 13px;
+}
+
+/* Field error message */
+.field-error {
+  color: #dc3545;
+  font-size: 13px;
+  margin-top: 6px;
+}
+
+/* Product cell improvements */
+.product-cell > div {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .manager-filters {
+    flex-direction: column;
+  }
+
+  .filter-select {
+    min-width: 100%;
+  }
+
+  .modal-lg {
+    max-width: 95vw;
+    margin: 10px;
+  }
+
+  .form-row {
+    flex-direction: column;
+  }
+}

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { getProdutos, getPedidos, getFinanceiro } from "../../services/api";
+import { getProdutosAdmin, getPedidos, getFinanceiro } from "../../services/api";
 import { useAuth } from "../../context/AuthContext";
 import "../../styles/admin.css";
 
@@ -8,7 +8,9 @@ export default function Dashboard() {
     totalProdutos: 0,
     totalPedidos: 0,
     receitaTotal: 0,
-    produtosBaixoEstoque: 0
+    produtosBaixoEstoque: 0,
+    semEstoque: 0,
+    totalVendidos: 0,
   });
   const [loading, setLoading] = useState(true);
   const { user } = useAuth();
@@ -19,16 +21,29 @@ export default function Dashboard() {
 
   async function loadStats() {
     try {
-      const produtos = await getProdutos();
-      const produtosArray = Array.isArray(produtos) ? produtos : [];
+      const [produtos, pedidos] = await Promise.all([
+        getProdutosAdmin(user.token),
+        getPedidos(user.token).catch(() => []),
+      ]);
 
-      const baixoEstoque = produtosArray.filter(p => (p.estoque || 0) <= 5).length;
+      const produtosArray = Array.isArray(produtos) ? produtos : [];
+      const pedidosArray = Array.isArray(pedidos) ? pedidos : [];
+
+      const baixoEstoque = produtosArray.filter(
+        (p) => (p.estoque ?? 99) > 0 && (p.estoque ?? 99) <= 5
+      ).length;
+      const semEstoque = produtosArray.filter((p) => (p.estoque ?? 1) === 0).length;
+      const totalVendidos = produtosArray.reduce((s, p) => s + (p.vendidos || 0), 0);
+
+      const receitaTotal = pedidosArray.reduce((s, p) => s + (p.total || 0), 0);
 
       setStats({
         totalProdutos: produtosArray.length,
-        totalPedidos: Math.floor(Math.random() * 50), // Placeholder até ter API real
-        receitaTotal: produtosArray.reduce((acc, p) => acc + (p.preco || 0), 0),
-        produtosBaixoEstoque: baixoEstoque
+        totalPedidos: pedidosArray.length,
+        receitaTotal,
+        produtosBaixoEstoque: baixoEstoque,
+        semEstoque,
+        totalVendidos,
       });
     } catch (error) {
       console.error("Erro ao carregar stats:", error);
@@ -41,27 +56,39 @@ export default function Dashboard() {
     {
       icon: "💰",
       label: "Receita Total",
-      value: `R$ ${stats.receitaTotal.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`,
-      color: "#c9a227"
+      value: `R$ ${stats.receitaTotal.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`,
+      color: "#c9a227",
     },
     {
       icon: "📦",
       label: "Produtos",
       value: stats.totalProdutos.toString(),
-      color: "#007bff"
+      color: "#007bff",
     },
     {
       icon: "🧾",
       label: "Pedidos",
       value: stats.totalPedidos.toString(),
-      color: "#28a745"
+      color: "#28a745",
+    },
+    {
+      icon: "🛒",
+      label: "Unidades Vendidas",
+      value: stats.totalVendidos.toString(),
+      color: "#17a2b8",
     },
     {
       icon: "⚠️",
       label: "Baixo Estoque",
       value: stats.produtosBaixoEstoque.toString(),
-      color: "#ffc107"
-    }
+      color: "#ffc107",
+    },
+    {
+      icon: "🚫",
+      label: "Sem Estoque (Ocultos)",
+      value: stats.semEstoque.toString(),
+      color: "#dc3545",
+    },
   ];
 
   if (loading) {
