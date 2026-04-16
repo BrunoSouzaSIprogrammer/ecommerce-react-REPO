@@ -55,6 +55,23 @@
   text-transform: uppercase;
 }
 
+.sidebar-logo-img {
+  height: 80px;
+  width: auto;
+  object-fit: contain;
+  margin-bottom: 12px;
+  transition: transform 0.3s ease;
+  filter: drop-shadow(0 0 15px rgba(201, 162, 39, 0.15));
+}
+
+.sidebar-logo-img:hover {
+  transform: scale(1.05);
+}
+
+.admin-page.light .sidebar-logo-img {
+  filter: drop-shadow(0 0 1px rgba(0,0,0,0.5));
+}
+
 .sidebar-subtitle {
   font-size: 12px;
   letter-spacing: 3px;

@@ -3,8 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useCart } from "../context/CartContext";
 import { useAuth } from "../context/AuthContext";
 import CartSidebar from "./CartSidebar";
-import logo from "../assets/logo-mazza.png";
-import logoDark from "../assets/logo-mazza-dark.png";
+import logo from "../assets/logo-mazza-transparent.png";
 import "../styles/navbar.css";
 
 export default function Navbar({ onThemeToggle, theme }) {
@@ -19,11 +18,12 @@ export default function Navbar({ onThemeToggle, theme }) {
     <>
       <nav className="navbar">
         <div className="navbar-brand" onClick={() => navigate('/')} style={{ cursor: 'pointer' }}>
-          <img 
-            src={theme === 'dark' ? logo : logoDark} 
-            alt="Mazza Moda Masculina" 
-            className="navbar-logo" 
+          <img
+            src={logo}
+            alt="Mazza Moda Masculina"
+            className="navbar-logo"
           />
+          <h1 className="brand-logo">MAZZA</h1>
         </div>
 
         <div className="navbar-actions">

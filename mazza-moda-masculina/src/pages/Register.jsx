@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { register } from "../services/api";
 import useTheme from "../hooks/useTheme";
+import logo from "../assets/logo-mazza-transparent.png";
 import "../styles/auth.css";
 
 export default function Register() {
@@ -54,6 +55,13 @@ export default function Register() {
       <div className="auth-container">
         <div className="auth-card">
           <div className="auth-header">
+            <img 
+              src={logo} 
+              alt="Mazza" 
+              className="auth-logo-img" 
+              onClick={() => navigate('/')}
+              style={{ cursor: 'pointer' }}
+            />
             <h1 className="auth-logo">MAZZA</h1>
             <p className="auth-subtitle">Moda Masculina</p>
           </div>

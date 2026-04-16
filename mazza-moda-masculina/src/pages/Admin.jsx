@@ -10,6 +10,7 @@ import FavoritosRanking from "../components/Admin/FavoritosRanking";
 import UsersManager from "../components/Admin/UsersManager";
 import BannerManager from "../components/Admin/BannerManager";
 import Financeiro from "../components/Admin/Financeiro";
+import logo from "../assets/logo-mazza-transparent.png";
 import "../styles/admin.css";
 
 export default function Admin() {
@@ -27,8 +28,15 @@ export default function Admin() {
       {/* Sidebar */}
       <aside className="admin-sidebar">
         <div className="sidebar-header">
+          <img 
+            src={logo} 
+            alt="Mazza" 
+            className="sidebar-logo-img" 
+            onClick={() => navigate('/')}
+            style={{ cursor: 'pointer' }}
+          />
           <h1 className="sidebar-logo">MAZZA</h1>
-          <p className="sidebar-subtitle">Admin</p>
+          <p className="sidebar-subtitle">Painel Administrativo</p>
         </div>
 
         <nav className="sidebar-nav">

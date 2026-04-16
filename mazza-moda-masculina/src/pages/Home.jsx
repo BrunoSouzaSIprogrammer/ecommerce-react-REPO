@@ -7,6 +7,7 @@ import { CATEGORIAS } from "../utils/filtros";
 import { useAuth } from "../context/AuthContext";
 import { useCart } from "../context/CartContext";
 import useTheme from "../hooks/useTheme";
+import logo from "../assets/logo-mazza-transparent.png";
 import "../styles/home.css";
 
 const CATEGORIAS_PRINCIPAIS = [
@@ -239,6 +240,13 @@ export default function Home() {
       <footer className="home-footer">
         <div className="footer-content">
           <div className="footer-brand">
+            <img 
+              src={logo} 
+              alt="Mazza" 
+              className="footer-logo-img" 
+              onClick={() => navigate('/')}
+              style={{ cursor: 'pointer' }}
+            />
             <h3>MAZZA</h3>
             <p>Moda Masculina</p>
           </div>

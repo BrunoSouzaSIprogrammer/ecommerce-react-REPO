@@ -14,6 +14,16 @@ function formatBRL(n) {
   });
 }
 
+function imagemProduto(item) {
+  const arq =
+    (Array.isArray(item.imagens) && item.imagens[0]) ||
+    item.imagem ||
+    item.image;
+  if (!arq) return null;
+  if (/^https?:\/\//i.test(arq)) return arq;
+  return `http://localhost:5000/uploads/${arq}`;
+}
+
 export default function Cart() {
   const navigate = useNavigate();
   const { theme, setTheme } = useTheme();
@@ -122,12 +132,14 @@ export default function Cart() {
           <div className="carrinho-grid">
             {/* Itens */}
             <div className="carrinho-itens">
-              {cart.map((item) => (
+              {cart.map((item) => {
+                const src = imagemProduto(item);
+                return (
                 <div key={item.id} className="carrinho-item">
                   <div className="item-img-wrap">
-                    {item.imagem || item.image ? (
+                    {src ? (
                       <img
-                        src={item.imagem || item.image}
+                        src={src}
                         alt={item.nome}
                         className="item-img"
                       />
@@ -184,7 +196,8 @@ export default function Cart() {
                     </button>
                   </div>
                 </div>
-              ))}
+                );
+              })}
             </div>
 
             {/* Resumo lateral */}

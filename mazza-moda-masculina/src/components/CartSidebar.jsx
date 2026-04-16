@@ -8,6 +8,16 @@ function formatBRL(n) {
   });
 }
 
+function imagemProduto(item) {
+  const arq =
+    (Array.isArray(item.imagens) && item.imagens[0]) ||
+    item.imagem ||
+    item.image;
+  if (!arq) return null;
+  if (/^https?:\/\//i.test(arq)) return arq;
+  return `http://localhost:5000/uploads/${arq}`;
+}
+
 export default function CartSidebar({ open, onClose }) {
   const navigate = useNavigate();
   const { cart, subtotal, removeFromCart, updateQuantity } = useCart();
@@ -81,7 +91,9 @@ export default function CartSidebar({ open, onClose }) {
         )}
 
         <div style={{ flex: 1, overflowY: "auto", display: "flex", flexDirection: "column", gap: 10 }}>
-          {cart.map((item) => (
+          {cart.map((item) => {
+            const src = imagemProduto(item);
+            return (
             <div
               key={item.id}
               style={{
@@ -92,12 +104,30 @@ export default function CartSidebar({ open, onClose }) {
                 gap: 10,
               }}
             >
-              {(item.imagem || item.image) && (
+              {src ? (
                 <img
-                  src={item.imagem || item.image}
+                  src={src}
                   alt={item.nome}
-                  style={{ width: 56, height: 56, objectFit: "cover", borderRadius: 6 }}
+                  style={{ width: 54, height: 72, objectFit: "cover", borderRadius: 6, flexShrink: 0 }}
                 />
+              ) : (
+                <div
+                  style={{
+                    width: 54,
+                    height: 72,
+                    borderRadius: 6,
+                    flexShrink: 0,
+                    background: "var(--bg)",
+                    border: "1px dashed var(--border)",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    fontSize: 10,
+                    opacity: 0.6,
+                  }}
+                >
+                  Sem foto
+                </div>
               )}
               <div style={{ flex: 1, minWidth: 0 }}>
                 <div style={{ fontWeight: 600, fontSize: 14 }}>{item.nome}</div>
@@ -139,7 +169,8 @@ export default function CartSidebar({ open, onClose }) {
                 </div>
               </div>
             </div>
-          ))}
+            );
+          })}
         </div>
 
         <div

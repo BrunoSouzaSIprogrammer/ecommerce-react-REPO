@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect } from "react";
+import { createContext, useContext, useState, useEffect, useRef } from "react";
 
 const CartContext = createContext();
 
@@ -9,45 +9,77 @@ function toNumber(v) {
   return Number.isFinite(n) ? n : 0;
 }
 
+function readJSON(key, fallback) {
+  try {
+    const raw = localStorage.getItem(key);
+    if (!raw) return fallback;
+    const parsed = JSON.parse(raw);
+    return parsed ?? fallback;
+  } catch {
+    return fallback;
+  }
+}
+
+function readString(key, fallback) {
+  try {
+    return localStorage.getItem(key) ?? fallback;
+  } catch {
+    return fallback;
+  }
+}
+
 export function CartProvider({ children }) {
-  const [cart, setCart] = useState([]);
-  const [cepDestino, setCepDestino] = useState("");
-  const [freteSelecionado, setFreteSelecionado] = useState(null);
+  // Lazy init: lê do localStorage ANTES do primeiro render, evitando o race
+  // em que o effect de save sobrescreve a chave com o valor vazio inicial.
+  const [cart, setCart] = useState(() => {
+    const v = readJSON("cart", []);
+    return Array.isArray(v) ? v : [];
+  });
+  const [cepDestino, setCepDestino] = useState(() => readString("cartCep", ""));
+  const [freteSelecionado, setFreteSelecionado] = useState(() =>
+    readJSON("cartFrete", null)
+  );
   // { servico, codigo, preco, prazoDias, transportadora }
 
   const [toast, setToast] = useState({ show: false, message: "" });
+
+  // Guarda extra: só persiste depois do primeiro render real (evita gravar
+  // valores transitórios em StrictMode).
+  const hidratado = useRef(false);
 
   function showToast(message) {
     setToast({ show: true, message });
     setTimeout(() => setToast({ show: false, message: "" }), 2000);
   }
 
-  // Hidrata do localStorage na primeira render.
   useEffect(() => {
+    if (!hidratado.current) {
+      hidratado.current = true;
+      return;
+    }
     try {
-      const storedCart = localStorage.getItem("cart");
-      if (storedCart) setCart(JSON.parse(storedCart));
-      const storedCep = localStorage.getItem("cartCep");
-      if (storedCep) setCepDestino(storedCep);
-      const storedFrete = localStorage.getItem("cartFrete");
-      if (storedFrete) setFreteSelecionado(JSON.parse(storedFrete));
+      localStorage.setItem("cart", JSON.stringify(cart));
     } catch {
       /* ignore */
     }
-  }, []);
-
-  useEffect(() => {
-    localStorage.setItem("cart", JSON.stringify(cart));
   }, [cart]);
 
   useEffect(() => {
-    localStorage.setItem("cartCep", cepDestino || "");
+    try {
+      localStorage.setItem("cartCep", cepDestino || "");
+    } catch {
+      /* ignore */
+    }
   }, [cepDestino]);
 
   useEffect(() => {
-    if (freteSelecionado)
-      localStorage.setItem("cartFrete", JSON.stringify(freteSelecionado));
-    else localStorage.removeItem("cartFrete");
+    try {
+      if (freteSelecionado)
+        localStorage.setItem("cartFrete", JSON.stringify(freteSelecionado));
+      else localStorage.removeItem("cartFrete");
+    } catch {
+      /* ignore */
+    }
   }, [freteSelecionado]);
 
   function addToCart(product) {

@@ -392,6 +392,22 @@
   margin: 0;
 }
 
+.footer-logo-img {
+  height: 60px;
+  width: auto;
+  object-fit: contain;
+  transition: transform 0.3s ease;
+  filter: drop-shadow(0 0 10px rgba(201, 162, 39, 0.2));
+}
+
+.footer-logo-img:hover {
+  transform: scale(1.05);
+}
+
+.home-page.light .footer-logo-img {
+  filter: drop-shadow(0 0 1px rgba(0,0,0,0.5));
+}
+
 .footer-brand p {
   font-size: 12px;
   letter-spacing: 2px;

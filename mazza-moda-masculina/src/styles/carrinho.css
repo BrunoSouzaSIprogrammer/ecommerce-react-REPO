@@ -61,7 +61,7 @@
 
 .carrinho-item {
   display: grid;
-  grid-template-columns: 100px 1fr auto;
+  grid-template-columns: 90px 1fr auto;
   gap: 16px;
   background: var(--card);
   border: 1px solid var(--border);
@@ -71,8 +71,8 @@
 }
 
 .item-img-wrap {
-  width: 100px;
-  height: 100px;
+  width: 90px;
+  height: 120px;
   border-radius: 8px;
   overflow: hidden;
   background: var(--bg);
@@ -370,13 +370,13 @@
 
 @media (max-width: 560px) {
   .carrinho-item {
-    grid-template-columns: 80px 1fr;
+    grid-template-columns: 72px 1fr;
     grid-template-rows: auto auto;
   }
 
   .item-img-wrap {
-    width: 80px;
-    height: 80px;
+    width: 72px;
+    height: 96px;
     grid-row: span 2;
   }
 

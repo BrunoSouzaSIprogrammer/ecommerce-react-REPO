@@ -140,6 +140,23 @@
   text-shadow: 0 0 30px rgba(201, 162, 39, 0.3);
 }
 
+.auth-logo-img {
+  height: 100px;
+  width: auto;
+  object-fit: contain;
+  margin-bottom: 20px;
+  transition: transform 0.3s ease;
+  filter: drop-shadow(0 0 20px rgba(201, 162, 39, 0.2));
+}
+
+.auth-logo-img:hover {
+  transform: scale(1.05);
+}
+
+.auth-page.light .auth-logo-img {
+  filter: drop-shadow(0 0 1px rgba(0,0,0,0.5));
+}
+
 .auth-subtitle {
   font-size: 14px;
   color: var(--mazza-dark-text-muted);
