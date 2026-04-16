@@ -23,7 +23,9 @@ export default function Navbar({ onThemeToggle, theme }) {
             alt="Mazza Moda Masculina"
             className="navbar-logo"
           />
-          <h1 className="brand-logo">MAZZA</h1>
+          <h1 className="brand-logo">
+            <span class="m">M</span>AZZA
+          </h1>
         </div>
 
         <div className="navbar-actions">
